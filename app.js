@@ -23,6 +23,17 @@
       status: '2D Live',
       statusKind: 'locked',
       src: './2/'
+    },
+    {
+      id: '3',
+      sheetCode: 'SHEET 03',
+      title: 'Sheet 03 · Central Boulevard Twin-Oasis Plan (2D)',
+      shortMeta: '177 Plots · 14.80% Park · Central 12m Spine · 0 Slant',
+      description: '2D layout inside locked 52.00 Bigha boundary: 12m Karodi Gate (96–135.4 ft) steps onto a Central 12m Spine flanked by PK-02A/B Twin-Oasis Gardens (6.45%) + PK-01 East Slant Cutoff (8.35%), 177 plots @ 123–150 Gaj (min 23.3\' front, 0 SW).',
+      stageLabel: 'SHEET 03 · /colony-2/3/ (Central 12m Spine + Twin Oasis · 177 Plots · 2D)',
+      status: '2D Live',
+      statusKind: 'locked',
+      src: './3/'
     }
   ];
 

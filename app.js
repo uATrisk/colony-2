@@ -16,10 +16,10 @@
     {
       id: '2',
       sheetCode: 'SHEET 02',
-      title: 'Sheet 02 · Design 01 (2D Colony Map)',
-      shortMeta: '159 Plots · 14.46% Park · Min 23.5\' Front',
-      description: '2D layout inside locked 52.00 Bigha perimeter: 12m gate inside 75–150 ft SW Karodi zone, closed wall past 150 ft, 9m streets, 121–182 Gaj (74.8% NE/NW, 0 SW).',
-      stageLabel: 'SHEET 02 · /colony-2/2/ (Design 01 · 2D Plot Subdivision)',
+      title: 'Sheet 02 · Rectilinear East-Park Plan (2D)',
+      shortMeta: '179 Plots · 14.58% Park · 24.78% Road · 0 Slant',
+      description: '2D rectilinear grid inside locked 52.00 Bigha boundary: PK-01 cuts Chakroad slant (8.74%) + PK-02 Central Park (5.83%), 24.78% minimal roads, 12m gate @ 95–134.4 ft, 134–150 Gaj (min 23.5\' front, 0 SW).',
+      stageLabel: 'SHEET 02 · /colony-2/2/ (Rectilinear East-Park Cut · 179 Plots · 2D)',
       status: '2D Live',
       statusKind: 'locked',
       src: './2/'

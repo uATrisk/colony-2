@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sheet 02 · Design 01 (2D Plot Subdivision) — 52.00 Bigha Colony</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-canvas: #dfe6e1;
+      --bg-sheet: #ffffff;
+      --bg-panel: #f3f6f4;
+      --bg-header: #13221d;
+      --bg-header-2: #1c312a;
+      --ink-primary: #13221d;
+      --ink-secondary: #354941;
+      --ink-muted: #52675e;
+      --border-hairline: #c7d2cc;
+      --border-ink: #1c312a;
+      --accent-green: #146c34;
+      --accent-green-ink: #0d5226;
+      --accent-green-bg: #ecfdf5;
+      --accent-nw: #155e75;
+      --accent-nw-bg: #e7f3f5;
+      --accent-ese: #9a5a13;
+      --accent-ese-bg: #fbf3e4;
+      --accent-wall: #b83721;
+      --accent-wall-bg: #fcf1ee;
+      --accent-blue: #1d4ed8;
+      --font-ui: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --radius: 2px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: var(--bg-canvas);
+      color: var(--ink-primary);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: #cfe8d8;
+      color: var(--ink-primary);
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent-green);
+      outline-offset: 2px;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    /* Standalone Top Toolbar */
+    .cad-topbar {
+      background-color: var(--bg-header);
+      color: #f4f7f5;
+      border-bottom: 1px solid #0e1a16;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 30px;
+      padding: 0 10px;
+      background: var(--bg-header-2);
+      border: 1px solid #3c544b;
+      border-radius: var(--radius);
+      color: #e6efea;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .back-link:hover { background: #264037; border-color: #6b8e7e; }
+
+    body.is-embedded .back-link,
+    body.is-embedded .sheet-title-wrap {
+      display: none;
+    }
+
+    .sheet-title-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .sheet-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+
+    .sheet-subtitle {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #b7cbc1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .topbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-strip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .flt-btn {
+      height: 30px;
+      padding: 0 9px;
+      border-radius: var(--radius);
+      border: 1px solid #354c43;
+      background: #1a2d26;
+      color: #d7e4dd;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .flt-btn:hover { background: #243b33; border-color: #5e7e71; }
+    .flt-btn.is-active {
+      background: var(--accent-green);
+      border-color: #34a862;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .flt-btn[data-filter="ese"].is-active {
+      background: #9a5a13;
+      border-color: #d9822b;
+    }
+    .flt-btn[data-filter="nw"].is-active {
+      background: #155e75;
+      border-color: #318ba8;
+    }
+
+    .zoom-group {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #354c43;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #1a2d26;
+    }
+
+    .tool-btn {
+      height: 30px;
+      padding: 0 9px;
+      border: none;
+      border-right: 1px solid #354c43;
+      background: transparent;
+      color: #e4ede8;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tool-btn:last-child { border-right: none; }
+    .tool-btn:hover { background: #264037; }
+
+    .action-btn {
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid #3c544b;
+      border-radius: var(--radius);
+      background: var(--bg-header-2);
+      color: #e6efea;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .action-btn:hover { background: #264037; border-color: #6b8e7e; }
+    .action-btn.is-active { background: #29463c; border-color: #8ab4a1; color: #ffffff; }
+
+    /* Workspace: CAD Stage + Inspector */
+    .cad-workspace {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+    }
+
+    .stage-pane {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      position: relative;
+      background-color: var(--bg-canvas);
+      background-image: radial-gradient(#bcc8c1 1px, transparent 1px);
+      background-size: 20px 20px;
+      padding: 10px;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .sheet-frame {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-sheet);
+      border: 1px solid var(--border-ink);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 10px rgba(19, 34, 29, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #cad-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+    #cad-svg.is-panning { cursor: grabbing; }
+
+    .zoom-readout {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      background: rgba(19, 34, 29, 0.9);
+      color: #eef4f0;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: var(--radius);
+      pointer-events: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Inspector Rail */
+    .inspector-pane {
+      width: 310px;
+      flex-shrink: 0;
+      background-color: var(--bg-panel);
+      border-left: 1px solid var(--border-hairline);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #9cb0a5 var(--bg-panel);
+    }
+
+    .inspector-pane.is-hidden {
+      display: none;
+    }
+
+    .insp-section {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .insp-heading {
+      margin: 0 0 8px 0;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .insp-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: var(--radius);
+      font-variant-numeric: tabular-nums;
+    }
+    .insp-tag--ok { background: var(--accent-green-bg); color: var(--accent-green-ink); border: 1px solid #96cca9; }
+    .insp-tag--ese { background: var(--accent-ese-bg); color: var(--accent-ese); border: 1px solid #dfc198; }
+    .insp-tag--nw { background: var(--accent-nw-bg); color: var(--accent-nw); border: 1px solid #9fc9d4; }
+
+    .search-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 0;
+      height: 32px;
+      padding: 0 9px;
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius);
+      background: #ffffff;
+      color: var(--ink-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .search-go {
+      height: 32px;
+      padding: 0 11px;
+      border: 1px solid var(--border-ink);
+      border-radius: var(--radius);
+      background: var(--bg-header);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .search-go:hover { background: var(--bg-header-2); }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .spec-cell {
+      background: #ffffff;
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius);
+      padding: 7px 9px;
+    }
+
+    .spec-k {
+      font-size: 11px;
+      color: var(--ink-muted);
+      margin-bottom: 2px;
+    }
+
+    .spec-v {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .compliance-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .compliance-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      font-size: 12px;
+      padding-bottom: 5px;
+      border-bottom: 1px dashed #d5ded9;
+    }
+    .compliance-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .comp-k { color: var(--ink-secondary); }
+    .comp-v {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-primary);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .comp-v--ok { color: var(--accent-green-ink); }
+
+    .hint-note {
+      margin: 8px 0 0 0;
+      font-size: 12px;
+      color: var(--ink-secondary);
+    }
+
+    /* SVG Styles */
+    .road-poly--main {
+      fill: #e2eae5;
+      stroke: #9ab0a5;
+      stroke-width: 0.6;
+    }
+    .road-poly--sub {
+      fill: #ecf1ee;
+      stroke: #b5c5bc;
+      stroke-width: 0.5;
+    }
+    .road-median {
+      stroke: #5c786c;
+      stroke-width: 0.9;
+      stroke-dasharray: 8 6;
+      fill: none;
+    }
+    .road-lbl {
+      font-family: var(--font-mono);
+      font-size: 5.8px;
+      font-weight: 600;
+      fill: #2f463d;
+      text-anchor: middle;
+      letter-spacing: 0.04em;
+      paint-order: stroke;
+      stroke: #ecf1ee;
+      stroke-width: 3.2px;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+    .road-lbl--main {
+      font-size: 6.4px;
+      fill: #13221d;
+      font-weight: 700;
+      stroke: #e2eae5;
+      stroke-width: 3.6px;
+    }
+
+    .park-poly {
+      fill: #d8f0e1;
+      stroke: #247844;
+      stroke-width: 0.9;
+    }
+    .park-walk {
+      fill: none;
+      stroke: #79b890;
+      stroke-width: 0.8;
+      stroke-dasharray: 3 2.5;
+      pointer-events: none;
+    }
+    .park-plaza {
+      fill: #eef8f1;
+      fill-opacity: 0.72;
+      stroke: #2d7a4f;
+      stroke-width: 0.8;
+      pointer-events: none;
+    }
+    .park-tree-outer {
+      fill: #9bd6b1;
+      fill-opacity: 0.6;
+      stroke: #1f6b3d;
+      stroke-width: 0.5;
+      pointer-events: none;
+    }
+    .park-tree-core {
+      fill: #146c34;
+      pointer-events: none;
+    }
+    .park-title {
+      font-family: var(--font-ui);
+      font-size: 7.2px;
+      font-weight: 700;
+      fill: #0d5226;
+      text-anchor: middle;
+      paint-order: stroke;
+      stroke: #d8f0e1;
+      stroke-width: 2.6px;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+    .park-title--lg { font-size: 8.6px; }
+    .park-meta {
+      font-family: var(--font-mono);
+      font-size: 5.8px;
+      font-weight: 600;
+      fill: #185c37;
+      text-anchor: middle;
+      paint-order: stroke;
+      stroke: #d8f0e1;
+      stroke-width: 2.2px;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+    .cad-park { cursor: pointer; }
+    .cad-park.is-selected .park-poly, .cad-park:hover .park-poly {
+      stroke: #0d5226;
+      stroke-width: 2.0;
+      fill: #cbead6;
+    }
+
+    /* Plot Styles by Compass Facing */
+    .cad-plot {
+      cursor: pointer;
+      transition: opacity 0.14s ease;
+    }
+    .cad-plot.is-dimmed {
+      opacity: 0.14;
+    }
+    .plot-poly {
+      stroke-width: 0.7;
+    }
+    .plot-face--ne .plot-poly {
+      fill: #e8f5ee;
+      stroke: #2c7a4b;
+    }
+    .plot-face--nw .plot-poly {
+      fill: #e7f2f4;
+      stroke: #246a7d;
+    }
+    .plot-face--ese .plot-poly {
+      fill: #fbf3e4;
+      stroke: #a6691e;
+    }
+    .cad-plot.is-oversized .plot-poly {
+      stroke-width: 1.1;
+      stroke-dasharray: 2.5 1.2;
+    }
+    .plot-front-chevron {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+    .plot-face--ne .plot-front-chevron { fill: #146c34; }
+    .plot-face--nw .plot-front-chevron { fill: #155e75; }
+    .plot-face--ese .plot-front-chevron { fill: #9a5a13; }
+
+    .cad-plot:hover .plot-poly {
+      stroke-width: 1.8;
+      filter: brightness(0.95);
+    }
+    .cad-plot.is-selected .plot-poly {
+      stroke: #13221d;
+      stroke-width: 2.4;
+      stroke-dasharray: none;
+      fill: #d2ece0;
+    }
+    .plot-face--ese.is-selected .plot-poly { fill: #f5dfb8; }
+    .plot-face--nw.is-selected .plot-poly { fill: #cde6ec; }
+
+    .plot-lbl { pointer-events: none; }
+    .pl-id {
+      font-family: var(--font-mono);
+      font-size: 5.5px;
+      font-weight: 700;
+      fill: #13221d;
+      text-anchor: middle;
+    }
+    .pl-gaj {
+      font-family: var(--font-mono);
+      font-size: 4.5px;
+      font-weight: 600;
+      fill: #1d3c31;
+      text-anchor: middle;
+    }
+    .pl-dim {
+      font-family: var(--font-mono);
+      font-size: 3.7px;
+      font-weight: 500;
+      fill: #475f55;
+      text-anchor: middle;
+    }
+
+    /* Outer Boundary & Walls */
+    .outer-boundary-line {
+      fill: none;
+      stroke: #13221d;
+      stroke-width: 2.2;
+      pointer-events: none;
+    }
+    .wall-barrier {
+      fill: none;
+      stroke: var(--accent-wall);
+      stroke-width: 3.4;
+      pointer-events: none;
+    }
+    .wall-hatch-band {
+      fill: url(#closed-wall-hatch);
+      opacity: 0.85;
+      pointer-events: none;
+    }
+    .gate-threshold {
+      fill: #ecfdf5;
+      stroke: #146c34;
+      stroke-width: 1.6;
+    }
+
+    .dim-txt {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 600;
+      fill: #13221d;
+      text-anchor: middle;
+    }
+    .wall-txt {
+      font-family: var(--font-mono);
+      font-size: 7.4px;
+      font-weight: 700;
+      fill: #b83721;
+      text-anchor: middle;
+    }
+    .gate-txt {
+      font-family: var(--font-mono);
+      font-size: 7.6px;
+      font-weight: 700;
+      fill: #0d5226;
+      text-anchor: middle;
+    }
+    .zone-txt {
+      font-family: var(--font-mono);
+      font-size: 6.6px;
+      font-weight: 700;
+      fill: #1d4ed8;
+      text-anchor: middle;
+    }
+    .corner-pin-circle { fill: #ffffff; stroke: #13221d; stroke-width: 1.2; }
+    .corner-pin-txt {
+      font-family: var(--font-mono);
+      font-size: 6.5px;
+      font-weight: 700;
+      fill: #13221d;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+
+    /* Responsive Mobile Layout */
+    @media (max-width: 920px) {
+      .cad-workspace { flex-direction: column; }
+      .stage-pane { min-height: 54vh; }
+      .inspector-pane {
+        width: 100%;
+        max-height: 36vh;
+        border-left: none;
+        border-top: 1px solid var(--border-hairline);
+      }
+      .sheet-subtitle { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="cad-topbar">
+      <div class="topbar-left">
+        <a class="back-link" href="../">&larr; Main Shell</a>
+        <div class="sheet-title-wrap">
+          <h1 class="sheet-title">Sheet 02 &middot; Design 01 (2D Plot Map)</h1>
+          <span class="sheet-subtitle">159 Plots &middot; 14.46% Park &middot; 12m Gate in 75&ndash;150&prime; Zone &middot; 0 SW Plots</span>
+        </div>
+      </div>
+
+      <div class="topbar-controls">
+        <div class="filter-strip" role="group" aria-label="Plot orientation filters">
+          <button type="button" class="flt-btn is-active" data-filter="all">All (159)</button>
+          <button type="button" class="flt-btn" data-filter="ne">NE 38&deg; (45)</button>
+          <button type="button" class="flt-btn" data-filter="nw">NW 308&deg; (74)</button>
+          <button type="button" class="flt-btn" data-filter="ese">ESE 128&deg; (40)</button>
+          <button type="button" class="flt-btn" data-filter="oversized">&gt;150 Gaj (7)</button>
+        </div>
+
+        <div class="zoom-group" role="group" aria-label="Drawing zoom controls">
+          <button type="button" class="tool-btn" id="zoom-out-btn" title="Zoom out">&minus;</button>
+          <button type="button" class="tool-btn" id="zoom-fit-btn" title="Fit whole sheet">Fit</button>
+          <button type="button" class="tool-btn" id="zoom-in-btn" title="Zoom in">+</button>
+        </div>
+
+        <button type="button" class="action-btn is-active" id="toggle-inspector-btn">Inspector</button>
+        <button type="button" class="action-btn" id="export-svg-btn">Export SVG</button>
+      </div>
+    </header>
+
+    <div class="cad-workspace">
+      <div class="stage-pane">
+        <div class="sheet-frame">
+          <svg id="cad-svg" xmlns="http://www.w3.org/2000/svg" viewBox="-75 -78 1035 896" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <pattern id="minor-grid" width="25" height="25" patternUnits="userSpaceOnUse">
+                <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#e9efec" stroke-width="0.4" />
+              </pattern>
+              <pattern id="major-grid" width="100" height="100" patternUnits="userSpaceOnUse">
+                <rect width="100" height="100" fill="url(#minor-grid)" />
+                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#d5e0da" stroke-width="0.7" />
+              </pattern>
+              <pattern id="closed-wall-hatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="0" x2="0" y2="8" stroke="#b83721" stroke-width="1.6" />
+              </pattern>
+              <pattern id="road-hatch" width="14" height="14" patternTransform="rotate(-45 0 0)" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="0" x2="0" y2="14" stroke="#cbd5cf" stroke-width="1.2" />
+              </pattern>
+            </defs>
+
+            <!-- Architectural Rag Grid -->
+            <rect x="-75" y="-78" width="1035" height="896" fill="#ffffff" />
+            <rect x="-15" y="-15" width="690" height="750" fill="url(#major-grid)" />
+
+            <!-- Sheet Header Banner inside CAD paper -->
+            <g id="sheet-banner">
+              <text x="0" y="-48" font-family="Archivo, sans-serif" font-size="13.5" font-weight="700" fill="#13221d">COLONY SUBDIVISION PLAN &middot; DESIGN 01 (2D) INSIDE LOCKED 52.00 BIGHA SURVEY</text>
+              <text x="0" y="-33" font-family="JetBrains Mono, monospace" font-size="7.5" font-weight="500" fill="#52675e">SCALE: 1 UNIT = 1 FT &middot; GATE STRICTLY AT 110.63&prime;&ndash;150.00&prime; ON KARODI RD &middot; CONTINUOUS WALL PAST 150&prime; &amp; ON CHAKROAD</text>
+            </g>
+
+            <!-- External Context: Chakroad (East 220m) & Karodi Road (Bottom) -->
+            <g id="external-roads">
+              <polygon points="461.54,0 503.54,0 684.65,681.50 642.65,681.50" fill="url(#road-hatch)" stroke="#9eb0a6" stroke-width="0.7" />
+              <text x="580" y="340" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="700" fill="#475c53" transform="rotate(75.1 580 340)" text-anchor="middle">CHAKROAD (CLOSED WALL BOUNDARY · 220.00 m / 721.8&prime;)</text>
+
+              <polygon points="0,696.83 256.38,696.83 415.88,694.50 555.29,689.50 642.65,681.50 662.0,776.0 0,776.0" fill="url(#road-hatch)" stroke="#9eb0a6" stroke-width="0.7" />
+              <text x="365" y="766" font-family="Archivo, sans-serif" font-size="10.5" font-weight="700" fill="#2b4037" text-anchor="middle" letter-spacing="1.6">EXISTING KARODI ROAD (APPROACH FRONTAGE)</text>
+            </g>
+
+            <!-- Site Fill Base -->
+            <polygon points="0,0 461.54,0 642.65,681.50 555.29,689.50 415.88,694.50 256.38,696.83 0,696.83" fill="#f7faf8" />
+
+            <!-- Internal Roads (12.00m Main Spine + 9.00m Streets) -->
+            <g id="internal-roads">
+              <polygon points="110.63,22.00 150.00,22.00 150.00,696.83 110.63,696.83" class="road-poly road-poly--main" data-road-id="RD-MAIN"/>
+        <polygon points="45.00,22.00 110.63,22.00 110.63,51.53 45.00,51.53" class="road-poly road-poly--sub" data-road-id="RD-S1W"/>
+        <polygon points="150.00,22.00 442.89,22.00 450.73,51.53 150.00,51.53" class="road-poly road-poly--sub" data-road-id="RD-S1E"/>
+        <polygon points="45.00,51.53 74.53,51.53 74.53,347.94 45.00,347.94" class="road-poly road-poly--sub" data-road-id="RD-WN"/>
+        <polygon points="45.00,377.47 74.53,377.47 74.53,621.00 45.00,621.00" class="road-poly road-poly--sub" data-road-id="RD-WS"/>
+        <polygon points="0.00,347.94 110.63,347.94 110.63,377.47 0.00,377.47" class="road-poly road-poly--sub" data-road-id="RD-S3W"/>
+        <polygon points="0.00,621.00 110.63,621.00 110.63,650.53 0.00,650.53" class="road-poly road-poly--sub" data-road-id="RD-S5W"/>
+        <polygon points="150.00,151.53 446.76,151.53 454.60,181.06 150.00,181.06" class="road-poly road-poly--sub" data-road-id="RD-S2"/>
+        <polygon points="195.80,231.06 225.33,231.06 225.33,347.94 195.80,347.94" class="road-poly road-poly--sub" data-road-id="RD-PKW"/>
+        <polygon points="150.00,347.94 498.95,347.94 506.80,377.47 150.00,377.47" class="road-poly road-poly--sub" data-road-id="RD-S3E"/>
+        <polygon points="150.00,484.47 535.24,484.47 543.08,514.00 150.00,514.00" class="road-poly road-poly--sub" data-road-id="RD-S4"/>
+        <polygon points="150.00,621.00 571.52,621.00 579.37,650.53 150.00,650.53" class="road-poly road-poly--sub" data-road-id="RD-S5E"/>
+        <polygon points="420.18,51.53 450.73,51.53 609.92,650.53 579.37,650.53" class="road-poly road-poly--sub" data-road-id="RD-LOOP"/>
+              <line x1="130.31" y1="26" x2="130.31" y2="695" class="road-median" />
+              <line x1="150" y1="362.7" x2="502" y2="362.7" class="road-median" stroke-opacity="0.55" />
+              <text x="130.3" y="130.0" class="road-lbl road-lbl--main" transform="rotate(-90 130.3 130.0)">12.00 m (39.4') MAIN COLONY AVENUE</text>
+        <text x="130.3" y="445.0" class="road-lbl road-lbl--main" transform="rotate(-90 130.3 445.0)">12.00 m (39.4') MAIN AVENUE · TO PARK & BLOCKS</text>
+        <text x="296.0" y="38.6" class="road-lbl ">9.00 m (29.5') NORTH ST 1</text>
+        <text x="300.0" y="168.1" class="road-lbl ">9.00 m (29.5') STREET 2</text>
+        <text x="322.0" y="364.6" class="road-lbl ">9.00 m (29.5') CENTRAL AVENUE 3</text>
+        <text x="345.0" y="501.1" class="road-lbl ">9.00 m (29.5') STREET 4</text>
+        <text x="360.0" y="637.6" class="road-lbl ">9.00 m (29.5') SOUTH ROAD 5</text>
+        <text x="59.8" y="200.0" class="road-lbl " transform="rotate(-90 59.8 200.0)">9.00 m WEST LANE (N)</text>
+        <text x="59.8" y="500.0" class="road-lbl " transform="rotate(-90 59.8 500.0)">9.00 m WEST LANE (S)</text>
+        <text x="210.6" y="289.5" class="road-lbl " transform="rotate(-90 210.6 289.5)">9.00 m PARK ST</text>
+        <text x="515.0" y="351.0" class="road-lbl " transform="rotate(75.1 515.0 351.0)">9.00 m (29.5') CHAKROAD PERIMETER LOOP</text>
+            </g>
+
+            <!-- Green Parks (14.46% strictly inside 13-15%) -->
+            <g id="parks-layer">
+              <g class="cad-park" data-kind="park" data-id="PK-01" tabindex="0"><polygon points="45.00,0.00 461.54,0.00 467.39,22.00 45.00,22.00" class="park-poly"/><circle cx="78" cy="11" r="6.5" class="park-tree-outer"/><circle cx="78" cy="11" r="2.2" class="park-tree-core"/><circle cx="128" cy="11" r="6.5" class="park-tree-outer"/><circle cx="128" cy="11" r="2.2" class="park-tree-core"/><circle cx="382" cy="11" r="6.5" class="park-tree-outer"/><circle cx="382" cy="11" r="2.2" class="park-tree-core"/><circle cx="430" cy="11" r="6.5" class="park-tree-outer"/><circle cx="430" cy="11" r="2.2" class="park-tree-core"/><text x="254.73" y="9.80" class="park-title">PK-01 · NORTH PROMENADE PARK</text><text x="254.73" y="17.40" class="park-meta">9,228 Sq.ft · 1,025 Gaj · 2.40%</text></g>
+        <g class="cad-park" data-kind="park" data-id="PK-02" tabindex="0"><polygon points="225.33,231.06 467.89,231.06 498.95,347.94 225.33,347.94" class="park-poly"/><rect x="244" y="246" width="220" height="86" rx="14" class="park-walk"/><circle cx="354" cy="289.5" r="22" class="park-plaza"/><circle cx="256" cy="258" r="6.5" class="park-tree-outer"/><circle cx="256" cy="258" r="2.2" class="park-tree-core"/><circle cx="315" cy="255" r="6.5" class="park-tree-outer"/><circle cx="315" cy="255" r="2.2" class="park-tree-core"/><circle cx="385" cy="255" r="6.5" class="park-tree-outer"/><circle cx="385" cy="255" r="2.2" class="park-tree-core"/><circle cx="442" cy="258" r="6.5" class="park-tree-outer"/><circle cx="442" cy="258" r="2.2" class="park-tree-core"/><circle cx="260" cy="322" r="6.5" class="park-tree-outer"/><circle cx="260" cy="322" r="2.2" class="park-tree-core"/><circle cx="335" cy="322" r="6.5" class="park-tree-outer"/><circle cx="335" cy="322" r="2.2" class="park-tree-core"/><circle cx="412" cy="322" r="6.5" class="park-tree-outer"/><circle cx="412" cy="322" r="2.2" class="park-tree-core"/><circle cx="468" cy="322" r="6.5" class="park-tree-outer"/><circle cx="468" cy="322" r="2.2" class="park-tree-core"/><text x="354.38" y="283.50" class="park-title park-title--lg">PK-02 · CENTRAL COMMUNITY PARK</text><text x="354.38" y="295.00" class="park-meta">30,169 Sq.ft · 3,352 Gaj · 7.85%</text></g>
+        <g class="cad-park" data-kind="park" data-id="PK-03" tabindex="0"><polygon points="442.89,22.00 467.39,22.00 642.65,681.50 618.73,683.69 609.92,650.53" class="park-poly"/><circle cx="469" cy="78" r="6.5" class="park-tree-outer"/><circle cx="469" cy="78" r="2.2" class="park-tree-core"/><circle cx="488" cy="148" r="6.5" class="park-tree-outer"/><circle cx="488" cy="148" r="2.2" class="park-tree-core"/><circle cx="508" cy="224" r="6.5" class="park-tree-outer"/><circle cx="508" cy="224" r="2.2" class="park-tree-core"/><circle cx="595" cy="550" r="6.5" class="park-tree-outer"/><circle cx="595" cy="550" r="2.2" class="park-tree-core"/><circle cx="618" cy="635" r="6.5" class="park-tree-outer"/><circle cx="618" cy="635" r="2.2" class="park-tree-core"/><g transform="rotate(75.1 556.31 411.94)"><text x="556.31" y="409.94" class="park-title">PK-03 · CHAKROAD GREEN BELT (24.5' W)</text><text x="556.31" y="417.44" class="park-meta">16,185 Sq.ft · 1,798 Gaj · 4.21%</text></g></g>
+            </g>
+
+            <!-- 159 Plotted Residential Units -->
+            <g id="plots-layer">
+              <g class="cad-plot plot-face--ne" data-id="P-001" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,0.00 45.00,0.00 45.00,26.76 0.00,26.76" class="plot-poly"/><polygon points="41.60,11.18 44.50,13.38 41.60,15.58" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="9.38" class="pl-id">P-001</text><text x="22.50" y="15.58" class="pl-gaj">134 Gaj</text><text x="22.50" y="20.38" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-002" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,26.76 45.00,26.76 45.00,53.53 0.00,53.53" class="plot-poly"/><polygon points="41.60,37.95 44.50,40.15 41.60,42.35" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="36.15" class="pl-id">P-002</text><text x="22.50" y="42.35" class="pl-gaj">134 Gaj</text><text x="22.50" y="47.15" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-003" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,53.53 45.00,53.53 45.00,80.29 0.00,80.29" class="plot-poly"/><polygon points="41.60,64.71 44.50,66.91 41.60,69.11" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="62.91" class="pl-id">P-003</text><text x="22.50" y="69.11" class="pl-gaj">134 Gaj</text><text x="22.50" y="73.91" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-004" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,80.29 45.00,80.29 45.00,107.06 0.00,107.06" class="plot-poly"/><polygon points="41.60,91.48 44.50,93.68 41.60,95.88" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="89.68" class="pl-id">P-004</text><text x="22.50" y="95.88" class="pl-gaj">134 Gaj</text><text x="22.50" y="100.68" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-005" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,107.06 45.00,107.06 45.00,133.82 0.00,133.82" class="plot-poly"/><polygon points="41.60,118.24 44.50,120.44 41.60,122.64" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="116.44" class="pl-id">P-005</text><text x="22.50" y="122.64" class="pl-gaj">134 Gaj</text><text x="22.50" y="127.44" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-006" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,133.82 45.00,133.82 45.00,160.59 0.00,160.59" class="plot-poly"/><polygon points="41.60,145.01 44.50,147.21 41.60,149.41" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="143.21" class="pl-id">P-006</text><text x="22.50" y="149.41" class="pl-gaj">134 Gaj</text><text x="22.50" y="154.21" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-007" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,160.59 45.00,160.59 45.00,187.35 0.00,187.35" class="plot-poly"/><polygon points="41.60,171.77 44.50,173.97 41.60,176.17" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="169.97" class="pl-id">P-007</text><text x="22.50" y="176.17" class="pl-gaj">134 Gaj</text><text x="22.50" y="180.97" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-008" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,187.35 45.00,187.35 45.00,214.12 0.00,214.12" class="plot-poly"/><polygon points="41.60,198.54 44.50,200.74 41.60,202.94" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="196.74" class="pl-id">P-008</text><text x="22.50" y="202.94" class="pl-gaj">134 Gaj</text><text x="22.50" y="207.74" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-009" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,214.12 45.00,214.12 45.00,240.88 0.00,240.88" class="plot-poly"/><polygon points="41.60,225.30 44.50,227.50 41.60,229.70" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="223.50" class="pl-id">P-009</text><text x="22.50" y="229.70" class="pl-gaj">134 Gaj</text><text x="22.50" y="234.50" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-010" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,240.88 45.00,240.88 45.00,267.65 0.00,267.65" class="plot-poly"/><polygon points="41.60,252.07 44.50,254.27 41.60,256.47" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="250.27" class="pl-id">P-010</text><text x="22.50" y="256.47" class="pl-gaj">134 Gaj</text><text x="22.50" y="261.27" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-011" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,267.65 45.00,267.65 45.00,294.41 0.00,294.41" class="plot-poly"/><polygon points="41.60,278.83 44.50,281.03 41.60,283.23" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="277.03" class="pl-id">P-011</text><text x="22.50" y="283.23" class="pl-gaj">134 Gaj</text><text x="22.50" y="288.03" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-012" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,294.41 45.00,294.41 45.00,321.18 0.00,321.18" class="plot-poly"/><polygon points="41.60,305.60 44.50,307.80 41.60,310.00" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="303.80" class="pl-id">P-012</text><text x="22.50" y="310.00" class="pl-gaj">134 Gaj</text><text x="22.50" y="314.80" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-013" data-facing="NE" data-block="W-North" data-gaj="133.82" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,321.18 45.00,321.18 45.00,347.94 0.00,347.94" class="plot-poly"/><polygon points="41.60,332.36 44.50,334.56 41.60,336.76" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="330.56" class="pl-id">P-013</text><text x="22.50" y="336.76" class="pl-gaj">134 Gaj</text><text x="22.50" y="341.56" class="pl-dim">26.8'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-014" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,377.47 45.00,377.47 45.00,404.53 0.00,404.53" class="plot-poly"/><polygon points="41.60,388.80 44.50,391.00 41.60,393.20" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="387.00" class="pl-id">P-014</text><text x="22.50" y="393.20" class="pl-gaj">135 Gaj</text><text x="22.50" y="398.00" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-015" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,404.53 45.00,404.53 45.00,431.59 0.00,431.59" class="plot-poly"/><polygon points="41.60,415.86 44.50,418.06 41.60,420.26" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="414.06" class="pl-id">P-015</text><text x="22.50" y="420.26" class="pl-gaj">135 Gaj</text><text x="22.50" y="425.06" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-016" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,431.59 45.00,431.59 45.00,458.65 0.00,458.65" class="plot-poly"/><polygon points="41.60,442.92 44.50,445.12 41.60,447.32" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="441.12" class="pl-id">P-016</text><text x="22.50" y="447.32" class="pl-gaj">135 Gaj</text><text x="22.50" y="452.12" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-017" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,458.65 45.00,458.65 45.00,485.71 0.00,485.71" class="plot-poly"/><polygon points="41.60,469.98 44.50,472.18 41.60,474.38" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="468.18" class="pl-id">P-017</text><text x="22.50" y="474.38" class="pl-gaj">135 Gaj</text><text x="22.50" y="479.18" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-018" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,485.71 45.00,485.71 45.00,512.77 0.00,512.77" class="plot-poly"/><polygon points="41.60,497.04 44.50,499.24 41.60,501.44" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="495.24" class="pl-id">P-018</text><text x="22.50" y="501.44" class="pl-gaj">135 Gaj</text><text x="22.50" y="506.24" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-019" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,512.77 45.00,512.77 45.00,539.82 0.00,539.82" class="plot-poly"/><polygon points="41.60,524.09 44.50,526.29 41.60,528.49" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="522.29" class="pl-id">P-019</text><text x="22.50" y="528.49" class="pl-gaj">135 Gaj</text><text x="22.50" y="533.29" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-020" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,539.82 45.00,539.82 45.00,566.88 0.00,566.88" class="plot-poly"/><polygon points="41.60,551.15 44.50,553.35 41.60,555.55" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="549.35" class="pl-id">P-020</text><text x="22.50" y="555.55" class="pl-gaj">135 Gaj</text><text x="22.50" y="560.35" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-021" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,566.88 45.00,566.88 45.00,593.94 0.00,593.94" class="plot-poly"/><polygon points="41.60,578.21 44.50,580.41 41.60,582.61" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="576.41" class="pl-id">P-021</text><text x="22.50" y="582.61" class="pl-gaj">135 Gaj</text><text x="22.50" y="587.41" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-022" data-facing="NE" data-block="W-South" data-gaj="135.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,593.94 45.00,593.94 45.00,621.00 0.00,621.00" class="plot-poly"/><polygon points="41.60,605.27 44.50,607.47 41.60,609.67" class="plot-front-chevron"/><g class="plot-lbl"><text x="22.50" y="603.47" class="pl-id">P-022</text><text x="22.50" y="609.67" class="pl-gaj">135 Gaj</text><text x="22.50" y="614.47" class="pl-dim">27.1'×45'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-023" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,51.53 110.63,51.53 110.63,84.46 74.53,84.46" class="plot-poly"/><polygon points="107.23,65.80 110.13,68.00 107.23,70.20" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="64.00" class="pl-id">P-023</text><text x="92.58" y="70.20" class="pl-gaj">132 Gaj</text><text x="92.58" y="75.00" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-024" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,84.46 110.63,84.46 110.63,117.40 74.53,117.40" class="plot-poly"/><polygon points="107.23,98.73 110.13,100.93 107.23,103.13" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="96.93" class="pl-id">P-024</text><text x="92.58" y="103.13" class="pl-gaj">132 Gaj</text><text x="92.58" y="107.93" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-025" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,117.40 110.63,117.40 110.63,150.33 74.53,150.33" class="plot-poly"/><polygon points="107.23,131.67 110.13,133.87 107.23,136.07" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="129.87" class="pl-id">P-025</text><text x="92.58" y="136.07" class="pl-gaj">132 Gaj</text><text x="92.58" y="140.87" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-026" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,150.33 110.63,150.33 110.63,183.27 74.53,183.27" class="plot-poly"/><polygon points="107.23,164.60 110.13,166.80 107.23,169.00" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="162.80" class="pl-id">P-026</text><text x="92.58" y="169.00" class="pl-gaj">132 Gaj</text><text x="92.58" y="173.80" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-027" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,183.27 110.63,183.27 110.63,216.20 74.53,216.20" class="plot-poly"/><polygon points="107.23,197.54 110.13,199.74 107.23,201.94" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="195.74" class="pl-id">P-027</text><text x="92.58" y="201.94" class="pl-gaj">132 Gaj</text><text x="92.58" y="206.74" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-028" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,216.20 110.63,216.20 110.63,249.14 74.53,249.14" class="plot-poly"/><polygon points="107.23,230.47 110.13,232.67 107.23,234.87" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="228.67" class="pl-id">P-028</text><text x="92.58" y="234.87" class="pl-gaj">132 Gaj</text><text x="92.58" y="239.67" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-029" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,249.14 110.63,249.14 110.63,282.07 74.53,282.07" class="plot-poly"/><polygon points="107.23,263.41 110.13,265.61 107.23,267.81" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="261.61" class="pl-id">P-029</text><text x="92.58" y="267.81" class="pl-gaj">132 Gaj</text><text x="92.58" y="272.61" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-030" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,282.07 110.63,282.07 110.63,315.01 74.53,315.01" class="plot-poly"/><polygon points="107.23,296.34 110.13,298.54 107.23,300.74" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="294.54" class="pl-id">P-030</text><text x="92.58" y="300.74" class="pl-gaj">132 Gaj</text><text x="92.58" y="305.54" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-031" data-facing="NE" data-block="A-Spine-N" data-gaj="132.12" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,315.01 110.63,315.01 110.63,347.94 74.53,347.94" class="plot-poly"/><polygon points="107.23,329.28 110.13,331.48 107.23,333.68" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="327.48" class="pl-id">P-031</text><text x="92.58" y="333.68" class="pl-gaj">132 Gaj</text><text x="92.58" y="338.48" class="pl-dim">32.9'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-032" data-facing="NE" data-block="A-Spine-S" data-gaj="139.55" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,377.47 110.63,377.47 110.63,412.26 74.53,412.26" class="plot-poly"/><polygon points="107.23,392.67 110.13,394.87 107.23,397.07" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="390.87" class="pl-id">P-032</text><text x="92.58" y="397.07" class="pl-gaj">140 Gaj</text><text x="92.58" y="401.87" class="pl-dim">34.8'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-033" data-facing="NE" data-block="A-Spine-S" data-gaj="139.55" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,412.26 110.63,412.26 110.63,447.05 74.53,447.05" class="plot-poly"/><polygon points="107.23,427.46 110.13,429.66 107.23,431.86" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="425.66" class="pl-id">P-033</text><text x="92.58" y="431.86" class="pl-gaj">140 Gaj</text><text x="92.58" y="436.66" class="pl-dim">34.8'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-034" data-facing="NE" data-block="A-Spine-S" data-gaj="139.55" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,447.05 110.63,447.05 110.63,481.84 74.53,481.84" class="plot-poly"/><polygon points="107.23,462.25 110.13,464.45 107.23,466.65" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="460.45" class="pl-id">P-034</text><text x="92.58" y="466.65" class="pl-gaj">140 Gaj</text><text x="92.58" y="471.45" class="pl-dim">34.8'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-035" data-facing="NE" data-block="A-Spine-S" data-gaj="139.55" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,481.84 110.63,481.84 110.63,516.63 74.53,516.63" class="plot-poly"/><polygon points="107.23,497.04 110.13,499.24 107.23,501.44" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="495.24" class="pl-id">P-035</text><text x="92.58" y="501.44" class="pl-gaj">140 Gaj</text><text x="92.58" y="506.24" class="pl-dim">34.8'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-036" data-facing="NE" data-block="A-Spine-S" data-gaj="139.55" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,516.63 110.63,516.63 110.63,551.42 74.53,551.42" class="plot-poly"/><polygon points="107.23,531.83 110.13,534.03 107.23,536.23" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="530.03" class="pl-id">P-036</text><text x="92.58" y="536.23" class="pl-gaj">140 Gaj</text><text x="92.58" y="541.03" class="pl-dim">34.8'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-037" data-facing="NE" data-block="A-Spine-S" data-gaj="139.55" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,551.42 110.63,551.42 110.63,586.21 74.53,586.21" class="plot-poly"/><polygon points="107.23,566.62 110.13,568.82 107.23,571.02" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="564.82" class="pl-id">P-037</text><text x="92.58" y="571.02" class="pl-gaj">140 Gaj</text><text x="92.58" y="575.82" class="pl-dim">34.8'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-038" data-facing="NE" data-block="A-Spine-S" data-gaj="139.55" data-corner="0" data-oversized="0" tabindex="0"><polygon points="74.53,586.21 110.63,586.21 110.63,621.00 74.53,621.00" class="plot-poly"/><polygon points="107.23,601.41 110.13,603.61 107.23,605.81" class="plot-front-chevron"/><g class="plot-lbl"><text x="92.58" y="599.61" class="pl-id">P-038</text><text x="92.58" y="605.81" class="pl-gaj">140 Gaj</text><text x="92.58" y="610.61" class="pl-dim">34.8'×36.1'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-039" data-facing="NW" data-block="BL-Gate" data-gaj="142.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="0.00,650.53 27.66,650.53 27.66,696.83 0.00,696.83" class="plot-poly"/><polygon points="11.63,653.93 13.83,651.03 16.03,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 13.83 673.68)"><text x="13.83" y="670.08" class="pl-id">P-039</text><text x="13.83" y="676.08" class="pl-gaj">142 Gaj</text><text x="13.83" y="680.88" class="pl-dim">27.7'×46.3'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-040" data-facing="NW" data-block="BL-Gate" data-gaj="142.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="27.66,650.53 55.31,650.53 55.31,696.83 27.66,696.83" class="plot-poly"/><polygon points="39.29,653.93 41.49,651.03 43.69,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 41.49 673.68)"><text x="41.49" y="670.08" class="pl-id">P-040</text><text x="41.49" y="676.08" class="pl-gaj">142 Gaj</text><text x="41.49" y="680.88" class="pl-dim">27.7'×46.3'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-041" data-facing="NW" data-block="BL-Gate" data-gaj="142.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="55.31,650.53 82.97,650.53 82.97,696.83 55.31,696.83" class="plot-poly"/><polygon points="66.94,653.93 69.14,651.03 71.34,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 69.14 673.68)"><text x="69.14" y="670.08" class="pl-id">P-041</text><text x="69.14" y="676.08" class="pl-gaj">142 Gaj</text><text x="69.14" y="680.88" class="pl-dim">27.7'×46.3'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-042" data-facing="NW" data-block="BL-Gate" data-gaj="142.29" data-corner="0" data-oversized="0" tabindex="0"><polygon points="82.97,650.53 110.63,650.53 110.63,696.83 82.97,696.83" class="plot-poly"/><polygon points="94.60,653.93 96.80,651.03 99.00,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 96.80 673.68)"><text x="96.80" y="670.08" class="pl-id">P-042</text><text x="96.80" y="676.08" class="pl-gaj">142 Gaj</text><text x="96.80" y="680.88" class="pl-dim">27.7'×46.3'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-043" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,51.53 174.67,51.53 174.67,101.53 150.00,101.53" class="plot-poly"/><polygon points="160.13,54.93 162.33,52.03 164.53,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 162.33 76.53)"><text x="162.33" y="72.93" class="pl-id">P-043</text><text x="162.33" y="78.93" class="pl-gaj">137 Gaj</text><text x="162.33" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-044" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="174.67,51.53 199.34,51.53 199.34,101.53 174.67,101.53" class="plot-poly"/><polygon points="184.80,54.93 187.00,52.03 189.20,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 187.00 76.53)"><text x="187.00" y="72.93" class="pl-id">P-044</text><text x="187.00" y="78.93" class="pl-gaj">137 Gaj</text><text x="187.00" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-045" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="199.34,51.53 224.00,51.53 224.00,101.53 199.34,101.53" class="plot-poly"/><polygon points="209.47,54.93 211.67,52.03 213.87,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 211.67 76.53)"><text x="211.67" y="72.93" class="pl-id">P-045</text><text x="211.67" y="78.93" class="pl-gaj">137 Gaj</text><text x="211.67" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-046" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="224.00,51.53 248.67,51.53 248.67,101.53 224.00,101.53" class="plot-poly"/><polygon points="234.14,54.93 236.34,52.03 238.54,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 236.34 76.53)"><text x="236.34" y="72.93" class="pl-id">P-046</text><text x="236.34" y="78.93" class="pl-gaj">137 Gaj</text><text x="236.34" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-047" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="248.67,51.53 273.34,51.53 273.34,101.53 248.67,101.53" class="plot-poly"/><polygon points="258.81,54.93 261.01,52.03 263.21,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 261.01 76.53)"><text x="261.01" y="72.93" class="pl-id">P-047</text><text x="261.01" y="78.93" class="pl-gaj">137 Gaj</text><text x="261.01" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-048" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="273.34,51.53 298.01,51.53 298.01,101.53 273.34,101.53" class="plot-poly"/><polygon points="283.47,54.93 285.67,52.03 287.87,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 285.67 76.53)"><text x="285.67" y="72.93" class="pl-id">P-048</text><text x="285.67" y="78.93" class="pl-gaj">137 Gaj</text><text x="285.67" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-049" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="298.01,51.53 322.68,51.53 322.68,101.53 298.01,101.53" class="plot-poly"/><polygon points="308.14,54.93 310.34,52.03 312.54,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 310.34 76.53)"><text x="310.34" y="72.93" class="pl-id">P-049</text><text x="310.34" y="78.93" class="pl-gaj">137 Gaj</text><text x="310.34" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-050" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="322.68,51.53 347.34,51.53 347.34,101.53 322.68,101.53" class="plot-poly"/><polygon points="332.81,54.93 335.01,52.03 337.21,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 335.01 76.53)"><text x="335.01" y="72.93" class="pl-id">P-050</text><text x="335.01" y="78.93" class="pl-gaj">137 Gaj</text><text x="335.01" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-051" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="347.34,51.53 372.01,51.53 372.01,101.53 347.34,101.53" class="plot-poly"/><polygon points="357.48,54.93 359.68,52.03 361.88,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 359.68 76.53)"><text x="359.68" y="72.93" class="pl-id">P-051</text><text x="359.68" y="78.93" class="pl-gaj">137 Gaj</text><text x="359.68" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-052" data-facing="NW" data-block="E1" data-gaj="137.05" data-corner="0" data-oversized="0" tabindex="0"><polygon points="372.01,51.53 396.68,51.53 396.68,101.53 372.01,101.53" class="plot-poly"/><polygon points="382.15,54.93 384.35,52.03 386.55,54.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 384.35 76.53)"><text x="384.35" y="72.93" class="pl-id">P-052</text><text x="384.35" y="78.93" class="pl-gaj">137 Gaj</text><text x="384.35" y="83.73" class="pl-dim">24.7'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw is-oversized is-corner" data-id="P-053" data-facing="NW" data-block="E1" data-gaj="167.47" data-corner="1" data-oversized="1" tabindex="0"><polygon points="396.68,51.53 420.18,51.53 433.47,101.53 396.68,101.53" class="plot-poly"/><polygon points="406.23,54.93 408.43,52.03 410.63,54.93" class="plot-front-chevron"/><g class="plot-lbl"><text x="411.75" y="72.53" class="pl-id">P-053</text><text x="411.75" y="78.73" class="pl-gaj">167 Gaj</text><text x="411.75" y="83.53" class="pl-dim">23.5'–36.8'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-054" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,101.53 176.00,101.53 176.00,151.53 150.00,151.53" class="plot-poly"/><polygon points="160.80,148.13 163.00,151.03 165.20,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 163.00 126.53)"><text x="163.00" y="122.93" class="pl-id">P-054</text><text x="163.00" y="128.93" class="pl-gaj">144 Gaj</text><text x="163.00" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-055" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="176.00,101.53 201.99,101.53 201.99,151.53 176.00,151.53" class="plot-poly"/><polygon points="186.80,148.13 189.00,151.03 191.20,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 189.00 126.53)"><text x="189.00" y="122.93" class="pl-id">P-055</text><text x="189.00" y="128.93" class="pl-gaj">144 Gaj</text><text x="189.00" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-056" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="201.99,101.53 227.99,101.53 227.99,151.53 201.99,151.53" class="plot-poly"/><polygon points="212.79,148.13 214.99,151.03 217.19,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 214.99 126.53)"><text x="214.99" y="122.93" class="pl-id">P-056</text><text x="214.99" y="128.93" class="pl-gaj">144 Gaj</text><text x="214.99" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-057" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="227.99,101.53 253.99,101.53 253.99,151.53 227.99,151.53" class="plot-poly"/><polygon points="238.79,148.13 240.99,151.03 243.19,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 240.99 126.53)"><text x="240.99" y="122.93" class="pl-id">P-057</text><text x="240.99" y="128.93" class="pl-gaj">144 Gaj</text><text x="240.99" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-058" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="253.99,101.53 279.98,101.53 279.98,151.53 253.99,151.53" class="plot-poly"/><polygon points="264.79,148.13 266.99,151.03 269.19,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 266.99 126.53)"><text x="266.99" y="122.93" class="pl-id">P-058</text><text x="266.99" y="128.93" class="pl-gaj">144 Gaj</text><text x="266.99" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-059" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="279.98,101.53 305.98,101.53 305.98,151.53 279.98,151.53" class="plot-poly"/><polygon points="290.78,148.13 292.98,151.03 295.18,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 292.98 126.53)"><text x="292.98" y="122.93" class="pl-id">P-059</text><text x="292.98" y="128.93" class="pl-gaj">144 Gaj</text><text x="292.98" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-060" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="305.98,101.53 331.98,101.53 331.98,151.53 305.98,151.53" class="plot-poly"/><polygon points="316.78,148.13 318.98,151.03 321.18,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 318.98 126.53)"><text x="318.98" y="122.93" class="pl-id">P-060</text><text x="318.98" y="128.93" class="pl-gaj">144 Gaj</text><text x="318.98" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-061" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="331.98,101.53 357.97,101.53 357.97,151.53 331.98,151.53" class="plot-poly"/><polygon points="342.78,148.13 344.98,151.03 347.18,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 344.98 126.53)"><text x="344.98" y="122.93" class="pl-id">P-061</text><text x="344.98" y="128.93" class="pl-gaj">144 Gaj</text><text x="344.98" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-062" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="357.97,101.53 383.97,101.53 383.97,151.53 357.97,151.53" class="plot-poly"/><polygon points="368.77,148.13 370.97,151.03 373.17,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 370.97 126.53)"><text x="370.97" y="122.93" class="pl-id">P-062</text><text x="370.97" y="128.93" class="pl-gaj">144 Gaj</text><text x="370.97" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-063" data-facing="ESE" data-block="E2" data-gaj="144.43" data-corner="0" data-oversized="0" tabindex="0"><polygon points="383.97,101.53 409.97,101.53 409.97,151.53 383.97,151.53" class="plot-poly"/><polygon points="394.77,148.13 396.97,151.03 399.17,148.13" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 396.97 126.53)"><text x="396.97" y="122.93" class="pl-id">P-063</text><text x="396.97" y="128.93" class="pl-gaj">144 Gaj</text><text x="396.97" y="133.73" class="pl-dim">26'×50'</text></g></g>
+        <g class="cad-plot plot-face--ne is-oversized is-corner" data-id="P-064" data-facing="NE" data-block="E2" data-gaj="167.47" data-corner="1" data-oversized="1" tabindex="0"><polygon points="409.97,101.53 433.47,101.53 446.76,151.53 409.97,151.53" class="plot-poly"/><polygon points="436.91,124.33 439.71,126.53 436.91,128.73" class="plot-front-chevron"/><g class="plot-lbl"><text x="425.04" y="122.53" class="pl-id">P-064</text><text x="425.04" y="128.73" class="pl-gaj">167 Gaj</text><text x="425.04" y="133.53" class="pl-dim">23.5'–36.8'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-065" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,181.06 175.55,181.06 175.55,231.06 150.00,231.06" class="plot-poly"/><polygon points="160.58,184.46 162.78,181.56 164.98,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 162.78 206.06)"><text x="162.78" y="202.46" class="pl-id">P-065</text><text x="162.78" y="208.46" class="pl-gaj">142 Gaj</text><text x="162.78" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-066" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="175.55,181.06 201.11,181.06 201.11,231.06 175.55,231.06" class="plot-poly"/><polygon points="186.13,184.46 188.33,181.56 190.53,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 188.33 206.06)"><text x="188.33" y="202.46" class="pl-id">P-066</text><text x="188.33" y="208.46" class="pl-gaj">142 Gaj</text><text x="188.33" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-067" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="201.11,181.06 226.66,181.06 226.66,231.06 201.11,231.06" class="plot-poly"/><polygon points="211.69,184.46 213.89,181.56 216.09,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 213.89 206.06)"><text x="213.89" y="202.46" class="pl-id">P-067</text><text x="213.89" y="208.46" class="pl-gaj">142 Gaj</text><text x="213.89" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-068" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="226.66,181.06 252.22,181.06 252.22,231.06 226.66,231.06" class="plot-poly"/><polygon points="237.24,184.46 239.44,181.56 241.64,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 239.44 206.06)"><text x="239.44" y="202.46" class="pl-id">P-068</text><text x="239.44" y="208.46" class="pl-gaj">142 Gaj</text><text x="239.44" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-069" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="252.22,181.06 277.77,181.06 277.77,231.06 252.22,231.06" class="plot-poly"/><polygon points="262.80,184.46 265.00,181.56 267.20,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 265.00 206.06)"><text x="265.00" y="202.46" class="pl-id">P-069</text><text x="265.00" y="208.46" class="pl-gaj">142 Gaj</text><text x="265.00" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-070" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="277.77,181.06 303.33,181.06 303.33,231.06 277.77,231.06" class="plot-poly"/><polygon points="288.35,184.46 290.55,181.56 292.75,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 290.55 206.06)"><text x="290.55" y="202.46" class="pl-id">P-070</text><text x="290.55" y="208.46" class="pl-gaj">142 Gaj</text><text x="290.55" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-071" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="303.33,181.06 328.88,181.06 328.88,231.06 303.33,231.06" class="plot-poly"/><polygon points="313.91,184.46 316.11,181.56 318.31,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 316.11 206.06)"><text x="316.11" y="202.46" class="pl-id">P-071</text><text x="316.11" y="208.46" class="pl-gaj">142 Gaj</text><text x="316.11" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-072" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="328.88,181.06 354.44,181.06 354.44,231.06 328.88,231.06" class="plot-poly"/><polygon points="339.46,184.46 341.66,181.56 343.86,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 341.66 206.06)"><text x="341.66" y="202.46" class="pl-id">P-072</text><text x="341.66" y="208.46" class="pl-gaj">142 Gaj</text><text x="341.66" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-073" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="354.44,181.06 379.99,181.06 379.99,231.06 354.44,231.06" class="plot-poly"/><polygon points="365.02,184.46 367.22,181.56 369.42,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 367.22 206.06)"><text x="367.22" y="202.46" class="pl-id">P-073</text><text x="367.22" y="208.46" class="pl-gaj">142 Gaj</text><text x="367.22" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-074" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="379.99,181.06 405.55,181.06 405.55,231.06 379.99,231.06" class="plot-poly"/><polygon points="390.57,184.46 392.77,181.56 394.97,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 392.77 206.06)"><text x="392.77" y="202.46" class="pl-id">P-074</text><text x="392.77" y="208.46" class="pl-gaj">142 Gaj</text><text x="392.77" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-075" data-facing="NW" data-block="E3" data-gaj="141.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="405.55,181.06 431.10,181.06 431.10,231.06 405.55,231.06" class="plot-poly"/><polygon points="416.13,184.46 418.33,181.56 420.53,184.46" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 418.33 206.06)"><text x="418.33" y="202.46" class="pl-id">P-075</text><text x="418.33" y="208.46" class="pl-gaj">142 Gaj</text><text x="418.33" y="213.26" class="pl-dim">25.6'×50'</text></g></g>
+        <g class="cad-plot plot-face--nw is-oversized is-corner" data-id="P-076" data-facing="NW" data-block="E3" data-gaj="167.47" data-corner="1" data-oversized="1" tabindex="0"><polygon points="431.10,181.06 454.60,181.06 467.89,231.06 431.10,231.06" class="plot-poly"/><polygon points="440.65,184.46 442.85,181.56 445.05,184.46" class="plot-front-chevron"/><g class="plot-lbl"><text x="446.18" y="202.06" class="pl-id">P-076</text><text x="446.18" y="208.26" class="pl-gaj">167 Gaj</text><text x="446.18" y="213.06" class="pl-dim">23.5'–36.8'×50'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-077" data-facing="NE" data-block="CP-West" data-gaj="148.71" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,231.06 195.80,231.06 195.80,260.28 150.00,260.28" class="plot-poly"/><polygon points="192.40,243.47 195.30,245.67 192.40,247.87" class="plot-front-chevron"/><g class="plot-lbl"><text x="172.90" y="241.67" class="pl-id">P-077</text><text x="172.90" y="247.87" class="pl-gaj">149 Gaj</text><text x="172.90" y="252.67" class="pl-dim">29.2'×45.8'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-078" data-facing="NE" data-block="CP-West" data-gaj="148.71" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,260.28 195.80,260.28 195.80,289.50 150.00,289.50" class="plot-poly"/><polygon points="192.40,272.69 195.30,274.89 192.40,277.09" class="plot-front-chevron"/><g class="plot-lbl"><text x="172.90" y="270.89" class="pl-id">P-078</text><text x="172.90" y="277.09" class="pl-gaj">149 Gaj</text><text x="172.90" y="281.89" class="pl-dim">29.2'×45.8'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-079" data-facing="NE" data-block="CP-West" data-gaj="148.71" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,289.50 195.80,289.50 195.80,318.72 150.00,318.72" class="plot-poly"/><polygon points="192.40,301.91 195.30,304.11 192.40,306.31" class="plot-front-chevron"/><g class="plot-lbl"><text x="172.90" y="300.11" class="pl-id">P-079</text><text x="172.90" y="306.31" class="pl-gaj">149 Gaj</text><text x="172.90" y="311.11" class="pl-dim">29.2'×45.8'</text></g></g>
+        <g class="cad-plot plot-face--ne" data-id="P-080" data-facing="NE" data-block="CP-West" data-gaj="148.71" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,318.72 195.80,318.72 195.80,347.94 150.00,347.94" class="plot-poly"/><polygon points="192.40,331.13 195.30,333.33 192.40,335.53" class="plot-front-chevron"/><g class="plot-lbl"><text x="172.90" y="329.33" class="pl-id">P-080</text><text x="172.90" y="335.53" class="pl-gaj">149 Gaj</text><text x="172.90" y="340.33" class="pl-dim">29.2'×45.8'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-081" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,377.47 173.81,377.47 173.81,430.97 150.00,430.97" class="plot-poly"/><polygon points="159.70,380.87 161.90,377.97 164.10,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 161.90 404.22)"><text x="161.90" y="400.62" class="pl-id">P-081</text><text x="161.90" y="406.62" class="pl-gaj">142 Gaj</text><text x="161.90" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-082" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="173.81,377.47 197.61,377.47 197.61,430.97 173.81,430.97" class="plot-poly"/><polygon points="183.51,380.87 185.71,377.97 187.91,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 185.71 404.22)"><text x="185.71" y="400.62" class="pl-id">P-082</text><text x="185.71" y="406.62" class="pl-gaj">142 Gaj</text><text x="185.71" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-083" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="197.61,377.47 221.42,377.47 221.42,430.97 197.61,430.97" class="plot-poly"/><polygon points="207.32,380.87 209.52,377.97 211.72,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 209.52 404.22)"><text x="209.52" y="400.62" class="pl-id">P-083</text><text x="209.52" y="406.62" class="pl-gaj">142 Gaj</text><text x="209.52" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-084" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="221.42,377.47 245.23,377.47 245.23,430.97 221.42,430.97" class="plot-poly"/><polygon points="231.13,380.87 233.33,377.97 235.53,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 233.33 404.22)"><text x="233.33" y="400.62" class="pl-id">P-084</text><text x="233.33" y="406.62" class="pl-gaj">142 Gaj</text><text x="233.33" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-085" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="245.23,377.47 269.04,377.47 269.04,430.97 245.23,430.97" class="plot-poly"/><polygon points="254.93,380.87 257.13,377.97 259.33,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 257.13 404.22)"><text x="257.13" y="400.62" class="pl-id">P-085</text><text x="257.13" y="406.62" class="pl-gaj">142 Gaj</text><text x="257.13" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-086" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="269.04,377.47 292.84,377.47 292.84,430.97 269.04,430.97" class="plot-poly"/><polygon points="278.74,380.87 280.94,377.97 283.14,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 280.94 404.22)"><text x="280.94" y="400.62" class="pl-id">P-086</text><text x="280.94" y="406.62" class="pl-gaj">142 Gaj</text><text x="280.94" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-087" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="292.84,377.47 316.65,377.47 316.65,430.97 292.84,430.97" class="plot-poly"/><polygon points="302.55,380.87 304.75,377.97 306.95,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 304.75 404.22)"><text x="304.75" y="400.62" class="pl-id">P-087</text><text x="304.75" y="406.62" class="pl-gaj">142 Gaj</text><text x="304.75" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-088" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="316.65,377.47 340.46,377.47 340.46,430.97 316.65,430.97" class="plot-poly"/><polygon points="326.35,380.87 328.55,377.97 330.75,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 328.55 404.22)"><text x="328.55" y="400.62" class="pl-id">P-088</text><text x="328.55" y="406.62" class="pl-gaj">142 Gaj</text><text x="328.55" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-089" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="340.46,377.47 364.27,377.47 364.27,430.97 340.46,430.97" class="plot-poly"/><polygon points="350.16,380.87 352.36,377.97 354.56,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 352.36 404.22)"><text x="352.36" y="400.62" class="pl-id">P-089</text><text x="352.36" y="406.62" class="pl-gaj">142 Gaj</text><text x="352.36" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-090" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="364.27,377.47 388.07,377.47 388.07,430.97 364.27,430.97" class="plot-poly"/><polygon points="373.97,380.87 376.17,377.97 378.37,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 376.17 404.22)"><text x="376.17" y="400.62" class="pl-id">P-090</text><text x="376.17" y="406.62" class="pl-gaj">142 Gaj</text><text x="376.17" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-091" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="388.07,377.47 411.88,377.47 411.88,430.97 388.07,430.97" class="plot-poly"/><polygon points="397.78,380.87 399.98,377.97 402.18,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 399.98 404.22)"><text x="399.98" y="400.62" class="pl-id">P-091</text><text x="399.98" y="406.62" class="pl-gaj">142 Gaj</text><text x="399.98" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-092" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="411.88,377.47 435.69,377.47 435.69,430.97 411.88,430.97" class="plot-poly"/><polygon points="421.58,380.87 423.78,377.97 425.98,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 423.78 404.22)"><text x="423.78" y="400.62" class="pl-id">P-092</text><text x="423.78" y="406.62" class="pl-gaj">142 Gaj</text><text x="423.78" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-093" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="435.69,377.47 459.49,377.47 459.49,430.97 435.69,430.97" class="plot-poly"/><polygon points="445.39,380.87 447.59,377.97 449.79,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 447.59 404.22)"><text x="447.59" y="400.62" class="pl-id">P-093</text><text x="447.59" y="406.62" class="pl-gaj">142 Gaj</text><text x="447.59" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-094" data-facing="NW" data-block="E4" data-gaj="141.52" data-corner="0" data-oversized="0" tabindex="0"><polygon points="459.49,377.47 483.30,377.47 483.30,430.97 459.49,430.97" class="plot-poly"/><polygon points="469.20,380.87 471.40,377.97 473.60,380.87" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 471.40 404.22)"><text x="471.40" y="400.62" class="pl-id">P-094</text><text x="471.40" y="406.62" class="pl-gaj">142 Gaj</text><text x="471.40" y="411.42" class="pl-dim">23.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw is-oversized is-corner" data-id="P-095" data-facing="NW" data-block="E4" data-gaj="181.95" data-corner="1" data-oversized="1" tabindex="0"><polygon points="483.30,377.47 506.80,377.47 521.02,430.97 483.30,430.97" class="plot-poly"/><polygon points="492.85,380.87 495.05,377.97 497.25,380.87" class="plot-front-chevron"/><g class="plot-lbl"><text x="498.61" y="400.22" class="pl-id">P-095</text><text x="498.61" y="406.42" class="pl-gaj">182 Gaj</text><text x="498.61" y="411.22" class="pl-dim">23.5'–37.7'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-096" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,430.97 174.82,430.97 174.82,484.47 150.00,484.47" class="plot-poly"/><polygon points="160.21,481.07 162.41,483.97 164.61,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 162.41 457.72)"><text x="162.41" y="454.12" class="pl-id">P-096</text><text x="162.41" y="460.12" class="pl-gaj">148 Gaj</text><text x="162.41" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-097" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="174.82,430.97 199.65,430.97 199.65,484.47 174.82,484.47" class="plot-poly"/><polygon points="185.03,481.07 187.23,483.97 189.43,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 187.23 457.72)"><text x="187.23" y="454.12" class="pl-id">P-097</text><text x="187.23" y="460.12" class="pl-gaj">148 Gaj</text><text x="187.23" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-098" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="199.65,430.97 224.47,430.97 224.47,484.47 199.65,484.47" class="plot-poly"/><polygon points="209.86,481.07 212.06,483.97 214.26,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 212.06 457.72)"><text x="212.06" y="454.12" class="pl-id">P-098</text><text x="212.06" y="460.12" class="pl-gaj">148 Gaj</text><text x="212.06" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-099" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="224.47,430.97 249.29,430.97 249.29,484.47 224.47,484.47" class="plot-poly"/><polygon points="234.68,481.07 236.88,483.97 239.08,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 236.88 457.72)"><text x="236.88" y="454.12" class="pl-id">P-099</text><text x="236.88" y="460.12" class="pl-gaj">148 Gaj</text><text x="236.88" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-100" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="249.29,430.97 274.11,430.97 274.11,484.47 249.29,484.47" class="plot-poly"/><polygon points="259.50,481.07 261.70,483.97 263.90,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 261.70 457.72)"><text x="261.70" y="454.12" class="pl-id">P-100</text><text x="261.70" y="460.12" class="pl-gaj">148 Gaj</text><text x="261.70" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-101" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="274.11,430.97 298.94,430.97 298.94,484.47 274.11,484.47" class="plot-poly"/><polygon points="284.33,481.07 286.53,483.97 288.73,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 286.53 457.72)"><text x="286.53" y="454.12" class="pl-id">P-101</text><text x="286.53" y="460.12" class="pl-gaj">148 Gaj</text><text x="286.53" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-102" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="298.94,430.97 323.76,430.97 323.76,484.47 298.94,484.47" class="plot-poly"/><polygon points="309.15,481.07 311.35,483.97 313.55,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 311.35 457.72)"><text x="311.35" y="454.12" class="pl-id">P-102</text><text x="311.35" y="460.12" class="pl-gaj">148 Gaj</text><text x="311.35" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-103" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="323.76,430.97 348.58,430.97 348.58,484.47 323.76,484.47" class="plot-poly"/><polygon points="333.97,481.07 336.17,483.97 338.37,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 336.17 457.72)"><text x="336.17" y="454.12" class="pl-id">P-103</text><text x="336.17" y="460.12" class="pl-gaj">148 Gaj</text><text x="336.17" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-104" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="348.58,430.97 373.41,430.97 373.41,484.47 348.58,484.47" class="plot-poly"/><polygon points="358.79,481.07 360.99,483.97 363.19,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 360.99 457.72)"><text x="360.99" y="454.12" class="pl-id">P-104</text><text x="360.99" y="460.12" class="pl-gaj">148 Gaj</text><text x="360.99" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-105" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="373.41,430.97 398.23,430.97 398.23,484.47 373.41,484.47" class="plot-poly"/><polygon points="383.62,481.07 385.82,483.97 388.02,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 385.82 457.72)"><text x="385.82" y="454.12" class="pl-id">P-105</text><text x="385.82" y="460.12" class="pl-gaj">148 Gaj</text><text x="385.82" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-106" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="398.23,430.97 423.05,430.97 423.05,484.47 398.23,484.47" class="plot-poly"/><polygon points="408.44,481.07 410.64,483.97 412.84,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 410.64 457.72)"><text x="410.64" y="454.12" class="pl-id">P-106</text><text x="410.64" y="460.12" class="pl-gaj">148 Gaj</text><text x="410.64" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-107" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="423.05,430.97 447.87,430.97 447.87,484.47 423.05,484.47" class="plot-poly"/><polygon points="433.26,481.07 435.46,483.97 437.66,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 435.46 457.72)"><text x="435.46" y="454.12" class="pl-id">P-107</text><text x="435.46" y="460.12" class="pl-gaj">148 Gaj</text><text x="435.46" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-108" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="447.87,430.97 472.70,430.97 472.70,484.47 447.87,484.47" class="plot-poly"/><polygon points="458.09,481.07 460.29,483.97 462.49,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 460.29 457.72)"><text x="460.29" y="454.12" class="pl-id">P-108</text><text x="460.29" y="460.12" class="pl-gaj">148 Gaj</text><text x="460.29" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-109" data-facing="ESE" data-block="E5" data-gaj="147.56" data-corner="0" data-oversized="0" tabindex="0"><polygon points="472.70,430.97 497.52,430.97 497.52,484.47 472.70,484.47" class="plot-poly"/><polygon points="482.91,481.07 485.11,483.97 487.31,481.07" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 485.11 457.72)"><text x="485.11" y="454.12" class="pl-id">P-109</text><text x="485.11" y="460.12" class="pl-gaj">148 Gaj</text><text x="485.11" y="464.92" class="pl-dim">24.8'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ne is-oversized is-corner" data-id="P-110" data-facing="NE" data-block="E5" data-gaj="181.95" data-corner="1" data-oversized="1" tabindex="0"><polygon points="497.52,430.97 521.02,430.97 535.24,484.47 497.52,484.47" class="plot-poly"/><polygon points="524.93,455.52 527.73,457.72 524.93,459.92" class="plot-front-chevron"/><g class="plot-lbl"><text x="512.82" y="453.72" class="pl-id">P-110</text><text x="512.82" y="459.92" class="pl-gaj">182 Gaj</text><text x="512.82" y="464.72" class="pl-dim">23.5'–37.7'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-111" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,514.00 174.64,514.00 174.64,567.50 150.00,567.50" class="plot-poly"/><polygon points="160.12,517.40 162.32,514.50 164.52,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 162.32 540.75)"><text x="162.32" y="537.15" class="pl-id">P-111</text><text x="162.32" y="543.15" class="pl-gaj">146 Gaj</text><text x="162.32" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-112" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="174.64,514.00 199.28,514.00 199.28,567.50 174.64,567.50" class="plot-poly"/><polygon points="184.76,517.40 186.96,514.50 189.16,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 186.96 540.75)"><text x="186.96" y="537.15" class="pl-id">P-112</text><text x="186.96" y="543.15" class="pl-gaj">146 Gaj</text><text x="186.96" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-113" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="199.28,514.00 223.92,514.00 223.92,567.50 199.28,567.50" class="plot-poly"/><polygon points="209.40,517.40 211.60,514.50 213.80,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 211.60 540.75)"><text x="211.60" y="537.15" class="pl-id">P-113</text><text x="211.60" y="543.15" class="pl-gaj">146 Gaj</text><text x="211.60" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-114" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="223.92,514.00 248.56,514.00 248.56,567.50 223.92,567.50" class="plot-poly"/><polygon points="234.04,517.40 236.24,514.50 238.44,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 236.24 540.75)"><text x="236.24" y="537.15" class="pl-id">P-114</text><text x="236.24" y="543.15" class="pl-gaj">146 Gaj</text><text x="236.24" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-115" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="248.56,514.00 273.19,514.00 273.19,567.50 248.56,567.50" class="plot-poly"/><polygon points="258.68,517.40 260.88,514.50 263.08,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 260.88 540.75)"><text x="260.88" y="537.15" class="pl-id">P-115</text><text x="260.88" y="543.15" class="pl-gaj">146 Gaj</text><text x="260.88" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-116" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="273.19,514.00 297.83,514.00 297.83,567.50 273.19,567.50" class="plot-poly"/><polygon points="283.31,517.40 285.51,514.50 287.71,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 285.51 540.75)"><text x="285.51" y="537.15" class="pl-id">P-116</text><text x="285.51" y="543.15" class="pl-gaj">146 Gaj</text><text x="285.51" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-117" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="297.83,514.00 322.47,514.00 322.47,567.50 297.83,567.50" class="plot-poly"/><polygon points="307.95,517.40 310.15,514.50 312.35,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 310.15 540.75)"><text x="310.15" y="537.15" class="pl-id">P-117</text><text x="310.15" y="543.15" class="pl-gaj">146 Gaj</text><text x="310.15" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-118" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="322.47,514.00 347.11,514.00 347.11,567.50 322.47,567.50" class="plot-poly"/><polygon points="332.59,517.40 334.79,514.50 336.99,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 334.79 540.75)"><text x="334.79" y="537.15" class="pl-id">P-118</text><text x="334.79" y="543.15" class="pl-gaj">146 Gaj</text><text x="334.79" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-119" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="347.11,514.00 371.75,514.00 371.75,567.50 347.11,567.50" class="plot-poly"/><polygon points="357.23,517.40 359.43,514.50 361.63,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 359.43 540.75)"><text x="359.43" y="537.15" class="pl-id">P-119</text><text x="359.43" y="543.15" class="pl-gaj">146 Gaj</text><text x="359.43" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-120" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="371.75,514.00 396.39,514.00 396.39,567.50 371.75,567.50" class="plot-poly"/><polygon points="381.87,517.40 384.07,514.50 386.27,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 384.07 540.75)"><text x="384.07" y="537.15" class="pl-id">P-120</text><text x="384.07" y="543.15" class="pl-gaj">146 Gaj</text><text x="384.07" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-121" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="396.39,514.00 421.03,514.00 421.03,567.50 396.39,567.50" class="plot-poly"/><polygon points="406.51,517.40 408.71,514.50 410.91,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 408.71 540.75)"><text x="408.71" y="537.15" class="pl-id">P-121</text><text x="408.71" y="543.15" class="pl-gaj">146 Gaj</text><text x="408.71" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-122" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="421.03,514.00 445.67,514.00 445.67,567.50 421.03,567.50" class="plot-poly"/><polygon points="431.15,517.40 433.35,514.50 435.55,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 433.35 540.75)"><text x="433.35" y="537.15" class="pl-id">P-122</text><text x="433.35" y="543.15" class="pl-gaj">146 Gaj</text><text x="433.35" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-123" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="445.67,514.00 470.31,514.00 470.31,567.50 445.67,567.50" class="plot-poly"/><polygon points="455.79,517.40 457.99,514.50 460.19,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 457.99 540.75)"><text x="457.99" y="537.15" class="pl-id">P-123</text><text x="457.99" y="543.15" class="pl-gaj">146 Gaj</text><text x="457.99" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-124" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="470.31,514.00 494.95,514.00 494.95,567.50 470.31,567.50" class="plot-poly"/><polygon points="480.43,517.40 482.63,514.50 484.83,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 482.63 540.75)"><text x="482.63" y="537.15" class="pl-id">P-124</text><text x="482.63" y="543.15" class="pl-gaj">146 Gaj</text><text x="482.63" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-125" data-facing="NW" data-block="E6" data-gaj="146.46" data-corner="0" data-oversized="0" tabindex="0"><polygon points="494.95,514.00 519.58,514.00 519.58,567.50 494.95,567.50" class="plot-poly"/><polygon points="505.06,517.40 507.26,514.50 509.46,517.40" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 507.26 540.75)"><text x="507.26" y="537.15" class="pl-id">P-125</text><text x="507.26" y="543.15" class="pl-gaj">146 Gaj</text><text x="507.26" y="547.95" class="pl-dim">24.6'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw is-oversized is-corner" data-id="P-126" data-facing="NW" data-block="E6" data-gaj="181.95" data-corner="1" data-oversized="1" tabindex="0"><polygon points="519.58,514.00 543.08,514.00 557.30,567.50 519.58,567.50" class="plot-poly"/><polygon points="529.13,517.40 531.33,514.50 533.53,517.40" class="plot-front-chevron"/><g class="plot-lbl"><text x="534.89" y="536.75" class="pl-id">P-126</text><text x="534.89" y="542.95" class="pl-gaj">182 Gaj</text><text x="534.89" y="547.75" class="pl-dim">23.5'–37.7'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-127" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,567.50 173.99,567.50 173.99,621.00 150.00,621.00" class="plot-poly"/><polygon points="159.79,617.60 161.99,620.50 164.19,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 161.99 594.25)"><text x="161.99" y="590.65" class="pl-id">P-127</text><text x="161.99" y="596.65" class="pl-gaj">143 Gaj</text><text x="161.99" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-128" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="173.99,567.50 197.98,567.50 197.98,621.00 173.99,621.00" class="plot-poly"/><polygon points="183.78,617.60 185.98,620.50 188.18,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 185.98 594.25)"><text x="185.98" y="590.65" class="pl-id">P-128</text><text x="185.98" y="596.65" class="pl-gaj">143 Gaj</text><text x="185.98" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-129" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="197.98,567.50 221.96,567.50 221.96,621.00 197.98,621.00" class="plot-poly"/><polygon points="207.77,617.60 209.97,620.50 212.17,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 209.97 594.25)"><text x="209.97" y="590.65" class="pl-id">P-129</text><text x="209.97" y="596.65" class="pl-gaj">143 Gaj</text><text x="209.97" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-130" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="221.96,567.50 245.95,567.50 245.95,621.00 221.96,621.00" class="plot-poly"/><polygon points="231.76,617.60 233.96,620.50 236.16,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 233.96 594.25)"><text x="233.96" y="590.65" class="pl-id">P-130</text><text x="233.96" y="596.65" class="pl-gaj">143 Gaj</text><text x="233.96" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-131" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="245.95,567.50 269.94,567.50 269.94,621.00 245.95,621.00" class="plot-poly"/><polygon points="255.74,617.60 257.94,620.50 260.14,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 257.94 594.25)"><text x="257.94" y="590.65" class="pl-id">P-131</text><text x="257.94" y="596.65" class="pl-gaj">143 Gaj</text><text x="257.94" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-132" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="269.94,567.50 293.93,567.50 293.93,621.00 269.94,621.00" class="plot-poly"/><polygon points="279.73,617.60 281.93,620.50 284.13,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 281.93 594.25)"><text x="281.93" y="590.65" class="pl-id">P-132</text><text x="281.93" y="596.65" class="pl-gaj">143 Gaj</text><text x="281.93" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-133" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="293.93,567.50 317.91,567.50 317.91,621.00 293.93,621.00" class="plot-poly"/><polygon points="303.72,617.60 305.92,620.50 308.12,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 305.92 594.25)"><text x="305.92" y="590.65" class="pl-id">P-133</text><text x="305.92" y="596.65" class="pl-gaj">143 Gaj</text><text x="305.92" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-134" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="317.91,567.50 341.90,567.50 341.90,621.00 317.91,621.00" class="plot-poly"/><polygon points="327.71,617.60 329.91,620.50 332.11,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 329.91 594.25)"><text x="329.91" y="590.65" class="pl-id">P-134</text><text x="329.91" y="596.65" class="pl-gaj">143 Gaj</text><text x="329.91" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-135" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="341.90,567.50 365.89,567.50 365.89,621.00 341.90,621.00" class="plot-poly"/><polygon points="351.69,617.60 353.89,620.50 356.09,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 353.89 594.25)"><text x="353.89" y="590.65" class="pl-id">P-135</text><text x="353.89" y="596.65" class="pl-gaj">143 Gaj</text><text x="353.89" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-136" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="365.89,567.50 389.88,567.50 389.88,621.00 365.89,621.00" class="plot-poly"/><polygon points="375.68,617.60 377.88,620.50 380.08,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 377.88 594.25)"><text x="377.88" y="590.65" class="pl-id">P-136</text><text x="377.88" y="596.65" class="pl-gaj">143 Gaj</text><text x="377.88" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-137" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="389.88,567.50 413.86,567.50 413.86,621.00 389.88,621.00" class="plot-poly"/><polygon points="399.67,617.60 401.87,620.50 404.07,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 401.87 594.25)"><text x="401.87" y="590.65" class="pl-id">P-137</text><text x="401.87" y="596.65" class="pl-gaj">143 Gaj</text><text x="401.87" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-138" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="413.86,567.50 437.85,567.50 437.85,621.00 413.86,621.00" class="plot-poly"/><polygon points="423.66,617.60 425.86,620.50 428.06,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 425.86 594.25)"><text x="425.86" y="590.65" class="pl-id">P-138</text><text x="425.86" y="596.65" class="pl-gaj">143 Gaj</text><text x="425.86" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-139" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="437.85,567.50 461.84,567.50 461.84,621.00 437.85,621.00" class="plot-poly"/><polygon points="447.65,617.60 449.85,620.50 452.05,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 449.85 594.25)"><text x="449.85" y="590.65" class="pl-id">P-139</text><text x="449.85" y="596.65" class="pl-gaj">143 Gaj</text><text x="449.85" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-140" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="461.84,567.50 485.83,567.50 485.83,621.00 461.84,621.00" class="plot-poly"/><polygon points="471.63,617.60 473.83,620.50 476.03,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 473.83 594.25)"><text x="473.83" y="590.65" class="pl-id">P-140</text><text x="473.83" y="596.65" class="pl-gaj">143 Gaj</text><text x="473.83" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-141" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="485.83,567.50 509.81,567.50 509.81,621.00 485.83,621.00" class="plot-poly"/><polygon points="495.62,617.60 497.82,620.50 500.02,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 497.82 594.25)"><text x="497.82" y="590.65" class="pl-id">P-141</text><text x="497.82" y="596.65" class="pl-gaj">143 Gaj</text><text x="497.82" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ese" data-id="P-142" data-facing="ESE" data-block="E7" data-gaj="142.59" data-corner="0" data-oversized="0" tabindex="0"><polygon points="509.81,567.50 533.80,567.50 533.80,621.00 509.81,621.00" class="plot-poly"/><polygon points="519.61,617.60 521.81,620.50 524.01,617.60" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 521.81 594.25)"><text x="521.81" y="590.65" class="pl-id">P-142</text><text x="521.81" y="596.65" class="pl-gaj">143 Gaj</text><text x="521.81" y="601.45" class="pl-dim">24'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--ne is-oversized is-corner" data-id="P-143" data-facing="NE" data-block="E7" data-gaj="181.95" data-corner="1" data-oversized="1" tabindex="0"><polygon points="533.80,567.50 557.30,567.50 571.52,621.00 533.80,621.00" class="plot-poly"/><polygon points="561.21,592.05 564.01,594.25 561.21,596.45" class="plot-front-chevron"/><g class="plot-lbl"><text x="549.11" y="590.25" class="pl-id">P-143</text><text x="549.11" y="596.45" class="pl-gaj">182 Gaj</text><text x="549.11" y="601.25" class="pl-dim">23.5'–37.7'×53.5'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-144" data-facing="NW" data-block="K-Wall" data-gaj="147.11" data-corner="0" data-oversized="0" tabindex="0"><polygon points="150.00,650.53 178.59,650.53 178.59,696.83 150.00,696.83" class="plot-poly"/><polygon points="162.10,653.93 164.30,651.03 166.50,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 164.30 673.68)"><text x="164.30" y="670.08" class="pl-id">P-144</text><text x="164.30" y="676.08" class="pl-gaj">147 Gaj</text><text x="164.30" y="680.88" class="pl-dim">28.6'×46.3'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-145" data-facing="NW" data-block="K-Wall" data-gaj="147.11" data-corner="0" data-oversized="0" tabindex="0"><polygon points="178.59,650.53 207.19,650.53 207.19,696.83 178.59,696.83" class="plot-poly"/><polygon points="190.69,653.93 192.89,651.03 195.09,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 192.89 673.68)"><text x="192.89" y="670.08" class="pl-id">P-145</text><text x="192.89" y="676.08" class="pl-gaj">147 Gaj</text><text x="192.89" y="680.88" class="pl-dim">28.6'×46.3'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-146" data-facing="NW" data-block="K-Wall" data-gaj="147.11" data-corner="0" data-oversized="0" tabindex="0"><polygon points="207.19,650.53 235.78,650.53 235.78,696.83 207.19,696.83" class="plot-poly"/><polygon points="219.29,653.93 221.49,651.03 223.69,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 221.49 673.68)"><text x="221.49" y="670.08" class="pl-id">P-146</text><text x="221.49" y="676.08" class="pl-gaj">147 Gaj</text><text x="221.49" y="680.88" class="pl-dim">28.6'×46.3'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-147" data-facing="NW" data-block="K-Wall" data-gaj="147.06" data-corner="0" data-oversized="0" tabindex="0"><polygon points="235.78,650.53 264.38,650.53 264.38,696.71 256.38,696.83 235.78,696.83" class="plot-poly"/><polygon points="247.88,653.93 250.08,651.03 252.28,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 251.34 678.29)"><text x="251.34" y="674.69" class="pl-id">P-147</text><text x="251.34" y="680.69" class="pl-gaj">147 Gaj</text><text x="251.34" y="685.49" class="pl-dim">28.6'×46.2'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-148" data-facing="NW" data-block="K-Wall" data-gaj="146.08" data-corner="0" data-oversized="0" tabindex="0"><polygon points="264.38,650.53 292.97,650.53 292.97,696.30 264.38,696.71" class="plot-poly"/><polygon points="276.48,653.93 278.68,651.03 280.88,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 278.68 673.52)"><text x="278.68" y="669.92" class="pl-id">P-148</text><text x="278.68" y="675.92" class="pl-gaj">146 Gaj</text><text x="278.68" y="680.72" class="pl-dim">28.6'×46'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-149" data-facing="NW" data-block="K-Wall" data-gaj="144.75" data-corner="0" data-oversized="0" tabindex="0"><polygon points="292.97,650.53 321.57,650.53 321.57,695.88 292.97,696.30" class="plot-poly"/><polygon points="305.07,653.93 307.27,651.03 309.47,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 307.27 673.31)"><text x="307.27" y="669.71" class="pl-id">P-149</text><text x="307.27" y="675.71" class="pl-gaj">145 Gaj</text><text x="307.27" y="680.51" class="pl-dim">28.6'×45.6'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-150" data-facing="NW" data-block="K-Wall" data-gaj="143.42" data-corner="0" data-oversized="0" tabindex="0"><polygon points="321.57,650.53 350.16,650.53 350.16,695.46 321.57,695.88" class="plot-poly"/><polygon points="333.66,653.93 335.86,651.03 338.06,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 335.86 673.10)"><text x="335.86" y="669.50" class="pl-id">P-150</text><text x="335.86" y="675.50" class="pl-gaj">143 Gaj</text><text x="335.86" y="680.30" class="pl-dim">28.6'×45.1'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-151" data-facing="NW" data-block="K-Wall" data-gaj="142.09" data-corner="0" data-oversized="0" tabindex="0"><polygon points="350.16,650.53 378.76,650.53 378.76,695.04 350.16,695.46" class="plot-poly"/><polygon points="362.26,653.93 364.46,651.03 366.66,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 364.46 672.89)"><text x="364.46" y="669.29" class="pl-id">P-151</text><text x="364.46" y="675.29" class="pl-gaj">142 Gaj</text><text x="364.46" y="680.09" class="pl-dim">28.6'×44.7'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-152" data-facing="NW" data-block="K-Wall" data-gaj="140.77" data-corner="0" data-oversized="0" tabindex="0"><polygon points="378.76,650.53 407.35,650.53 407.35,694.62 378.76,695.04" class="plot-poly"/><polygon points="390.85,653.93 393.05,651.03 395.25,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 393.05 672.68)"><text x="393.05" y="669.08" class="pl-id">P-152</text><text x="393.05" y="675.08" class="pl-gaj">141 Gaj</text><text x="393.05" y="679.88" class="pl-dim">28.6'×44.3'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-153" data-facing="NW" data-block="K-Wall" data-gaj="138.97" data-corner="0" data-oversized="0" tabindex="0"><polygon points="407.35,650.53 435.95,650.53 435.95,693.78 415.88,694.50 407.35,694.62" class="plot-poly"/><polygon points="419.45,653.93 421.65,651.03 423.85,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 420.49 676.79)"><text x="420.49" y="673.19" class="pl-id">P-153</text><text x="420.49" y="679.19" class="pl-gaj">139 Gaj</text><text x="420.49" y="683.99" class="pl-dim">28.6'×43.7'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-154" data-facing="NW" data-block="K-Wall" data-gaj="135.79" data-corner="0" data-oversized="0" tabindex="0"><polygon points="435.95,650.53 464.54,650.53 464.54,692.75 435.95,693.78" class="plot-poly"/><polygon points="448.04,653.93 450.24,651.03 452.44,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 450.24 671.90)"><text x="450.24" y="668.30" class="pl-id">P-154</text><text x="450.24" y="674.30" class="pl-gaj">136 Gaj</text><text x="450.24" y="679.10" class="pl-dim">28.6'×42.7'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-155" data-facing="NW" data-block="K-Wall" data-gaj="132.53" data-corner="0" data-oversized="0" tabindex="0"><polygon points="464.54,650.53 493.14,650.53 493.14,691.73 464.54,692.75" class="plot-poly"/><polygon points="476.64,653.93 478.84,651.03 481.04,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 478.84 671.38)"><text x="478.84" y="667.78" class="pl-id">P-155</text><text x="478.84" y="673.78" class="pl-gaj">133 Gaj</text><text x="478.84" y="678.58" class="pl-dim">28.6'×41.7'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-156" data-facing="NW" data-block="K-Wall" data-gaj="129.28" data-corner="0" data-oversized="0" tabindex="0"><polygon points="493.14,650.53 521.73,650.53 521.73,690.70 493.14,691.73" class="plot-poly"/><polygon points="505.23,653.93 507.43,651.03 509.63,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 507.43 670.87)"><text x="507.43" y="667.27" class="pl-id">P-156</text><text x="507.43" y="673.27" class="pl-gaj">129 Gaj</text><text x="507.43" y="678.07" class="pl-dim">28.6'×40.7'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-157" data-facing="NW" data-block="K-Wall" data-gaj="126.02" data-corner="0" data-oversized="0" tabindex="0"><polygon points="521.73,650.53 550.32,650.53 550.32,689.68 521.73,690.70" class="plot-poly"/><polygon points="533.83,653.93 536.03,651.03 538.23,653.93" class="plot-front-chevron"/><g class="plot-lbl" transform="rotate(-90 536.03 670.36)"><text x="536.03" y="666.76" class="pl-id">P-157</text><text x="536.03" y="672.76" class="pl-gaj">126 Gaj</text><text x="536.03" y="677.56" class="pl-dim">28.6'×39.7'</text></g></g>
+        <g class="cad-plot plot-face--nw" data-id="P-158" data-facing="NW" data-block="K-Wall" data-gaj="121.03" data-corner="0" data-oversized="0" tabindex="0"><polygon points="550.32,650.53 578.92,650.53 578.92,687.34 555.29,689.50 550.32,689.68" class="plot-poly"/><polygon points="562.42,653.93 564.62,651.03 566.82,653.93" class="plot-front-chevron"/><g class="plot-lbl"><text x="562.76" y="669.51" class="pl-id">P-158</text><text x="562.76" y="675.71" class="pl-gaj">121 Gaj</text><text x="562.76" y="680.51" class="pl-dim">28.6'×38'</text></g></g>
+        <g class="cad-plot plot-face--nw is-corner" data-id="P-159" data-facing="NW" data-block="K-Wall" data-gaj="138.53" data-corner="1" data-oversized="0" tabindex="0"><polygon points="578.92,650.53 609.92,650.53 618.73,683.69 578.92,687.34" class="plot-poly"/><polygon points="592.22,653.93 594.42,651.03 596.62,653.93" class="plot-front-chevron"/><g class="plot-lbl"><text x="596.62" y="664.02" class="pl-id">P-159</text><text x="596.62" y="670.22" class="pl-gaj">139 Gaj</text><text x="596.62" y="675.02" class="pl-dim">31'×35'</text></g></g>
+            </g>
+
+            <!-- Exact Immutable Outer Site Boundary -->
+            <polygon points="0,0 461.54,0 642.65,681.50 555.29,689.50 415.88,694.50 256.38,696.83 0,696.83" class="outer-boundary-line" />
+
+            <!-- Closed Boundary Walls (NO Entry Allowed) -->
+            <g id="closed-walls">
+              <!-- East Chakroad Wall (220.00m) -->
+              <polygon points="461.54,0 469.54,0 650.65,681.50 642.65,681.50" class="wall-hatch-band" />
+              <line x1="461.54" y1="0" x2="642.65" y2="681.50" class="wall-barrier" />
+
+              <!-- Karodi SW Closed Wall (0 to 110.63 ft, behind BL-Gate) -->
+              <polygon points="0,696.83 110.63,696.83 110.63,704.83 0,704.83" class="wall-hatch-band" />
+              <line x1="0" y1="696.83" x2="110.63" y2="696.83" class="wall-barrier" />
+              <text x="36" y="715" class="wall-txt">CLOSED WALL</text>
+
+              <!-- Karodi Closed Wall past 150 ft (150.00 ft to 642.65 ft) -->
+              <polygon points="150.00,696.83 256.38,696.83 415.88,694.50 555.29,689.50 642.65,681.50 642.65,689.50 555.29,697.50 415.88,702.50 256.38,704.83 150.00,704.83" class="wall-hatch-band" />
+              <polyline points="150.00,696.83 256.38,696.83 415.88,694.50 555.29,689.50 642.65,681.50" class="wall-barrier" />
+              <text x="398" y="715" class="wall-txt">CONTINUOUS CLOSED BOUNDARY WALL BEGINS @ 150.00&prime; &mdash; NO ENTRY ALONG REMAINDER OF KARODI ROAD</text>
+            </g>
+
+            <!-- Verified SW Entrance Corridor (75–150 ft allowed zone, 12.00m / 39.37 ft Gate) -->
+            <g id="entrance-corridor">
+              <!-- 12m Gate Opening -->
+              <rect x="110.63" y="692.5" width="39.37" height="10" class="gate-threshold" />
+              <path d="M 122 710 L 122 698 L 118.5 701.5 M 122 698 L 125.5 701.5" fill="none" stroke="#0d5226" stroke-width="1.6" stroke-linecap="round" />
+              <path d="M 138 698 L 138 710 L 134.5 706.5 M 138 710 L 141.5 706.5" fill="none" stroke="#0d5226" stroke-width="1.6" stroke-linecap="round" />
+              <rect x="85" y="714" width="91" height="12.5" rx="1.5" fill="#146c34" />
+              <text x="130.5" y="722.5" font-family="JetBrains Mono, monospace" font-size="6.8" font-weight="700" fill="#ffffff" text-anchor="middle">MAIN GATE 12.00 m</text>
+
+              <!-- Blue dashed zone bracket 75 ft -> 150 ft matching user sketch -->
+              <line x1="75" y1="704" x2="75" y2="740" stroke="#1d4ed8" stroke-width="1.2" stroke-dasharray="3 2" />
+              <line x1="150" y1="704" x2="150" y2="740" stroke="#1d4ed8" stroke-width="1.2" stroke-dasharray="3 2" />
+              <line x1="75" y1="735" x2="150" y2="735" stroke="#1d4ed8" stroke-width="1.3" stroke-dasharray="4 2" />
+              <text x="112.5" y="746" class="zone-txt">75&prime;&ndash;150&prime; ALLOWED ENTRY ZONE</text>
+            </g>
+
+            <!-- Outer Perimeter Dimensions & Corner Pins -->
+            <g id="outer-dimensions">
+              <!-- North Edge 140.68m -->
+              <line x1="0" y1="-8" x2="461.54" y2="-8" stroke="#13221d" stroke-width="0.9" />
+              <line x1="0" y1="-12" x2="0" y2="-4" stroke="#13221d" stroke-width="0.9" />
+              <line x1="461.54" y1="-12" x2="461.54" y2="-4" stroke="#13221d" stroke-width="0.9" />
+              <text x="230.8" y="-11" class="dim-txt">140.68 m (461.54&prime;)</text>
+
+              <!-- West Edge 212.40m -->
+              <line x1="-14" y1="0" x2="-14" y2="696.83" stroke="#13221d" stroke-width="0.9" />
+              <line x1="-18" y1="0" x2="-10" y2="0" stroke="#13221d" stroke-width="0.9" />
+              <line x1="-18" y1="696.83" x2="-10" y2="696.83" stroke="#13221d" stroke-width="0.9" />
+              <text x="-22" y="348" class="dim-txt" transform="rotate(-90 -22 348)">212.40 m (696.83&prime;)</text>
+
+              <!-- Corner Pins A..G -->
+              <g transform="translate(0,0)"><circle r="6.5" class="corner-pin-circle"/><text class="corner-pin-txt">A</text></g>
+              <g transform="translate(461.54,0)"><circle r="6.5" class="corner-pin-circle"/><text class="corner-pin-txt">B</text></g>
+              <g transform="translate(642.65,681.50)"><circle r="6.5" class="corner-pin-circle"/><text class="corner-pin-txt">C</text></g>
+              <g transform="translate(555.29,689.50)"><circle r="6" class="corner-pin-circle"/><text class="corner-pin-txt">D</text></g>
+              <g transform="translate(415.88,694.50)"><circle r="6" class="corner-pin-circle"/><text class="corner-pin-txt">E</text></g>
+              <g transform="translate(256.38,696.83)"><circle r="6" class="corner-pin-circle"/><text class="corner-pin-txt">F</text></g>
+              <g transform="translate(0,696.83)"><circle r="6.5" class="corner-pin-circle"/><text class="corner-pin-txt">G</text></g>
+            </g>
+
+            <!-- Right Margin: Rotated Compass (+52 deg), Compliance Summary Table, Legend -->
+            <g id="sheet-margin-annotations">
+              <!-- Compass Rose matching locked Sheet 01 rotate(+52) -->
+              <g id="blueprint-compass" transform="translate(808, 125)">
+                <circle cx="0" cy="0" r="64" fill="#f7faf8" stroke="#1c312a" stroke-width="1.2" />
+                <circle cx="0" cy="0" r="56" fill="none" stroke="#9ab0a5" stroke-width="0.6" stroke-dasharray="3 3" />
+                <text x="0" y="-73" font-family="Archivo, sans-serif" font-size="8.5" font-weight="700" fill="#13221d" text-anchor="middle">TRUE COMPASS (+52&deg; NE)</text>
+
+                <!-- Cardinal Plot Direction Hints around outer ring -->
+                <text x="0" y="-44" font-family="JetBrains Mono, monospace" font-size="6.8" font-weight="700" fill="#155e75" text-anchor="middle">308&deg; NW</text>
+                <text x="41" y="2" font-family="JetBrains Mono, monospace" font-size="6.8" font-weight="700" fill="#146c34" text-anchor="middle">38&deg; NE</text>
+                <text x="0" y="49" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="600" fill="#9a5a13" text-anchor="middle">128&deg; ESE</text>
+                <text x="-40" y="2" font-family="JetBrains Mono, monospace" font-size="6.5" font-weight="600" fill="#b83721" text-anchor="middle">0 SW</text>
+
+                <g transform="rotate(52)">
+                  <polygon points="0,-38 7,-7 0,-12" fill="#13221d" />
+                  <polygon points="0,-38 -7,-7 0,-12" fill="#ffffff" stroke="#13221d" stroke-width="1" />
+                  <polygon points="0,38 5.5,7 0,12" fill="#899c93" />
+                  <polygon points="0,38 -5.5,7 0,12" fill="#ffffff" stroke="#899c93" stroke-width="0.9" />
+                  <text x="0" y="-43" font-family="Archivo, sans-serif" font-size="11" font-weight="700" fill="#b83721" text-anchor="middle">N</text>
+                  <text x="0" y="50" font-family="Archivo, sans-serif" font-size="9" font-weight="600" fill="#475c53" text-anchor="middle">S</text>
+                </g>
+              </g>
+
+              <!-- On-Sheet Area & Compliance Schedule -->
+              <g id="sheet-schedule" transform="translate(678, 222)">
+                <rect x="0" y="0" width="262" height="248" fill="#ffffff" stroke="#13221d" stroke-width="1.3" />
+                <rect x="0" y="0" width="262" height="24" fill="#13221d" />
+                <text x="10" y="15.5" font-family="Archivo, sans-serif" font-size="9.5" font-weight="700" fill="#ffffff">AREA &amp; COMPLIANCE SCHEDULE</text>
+
+                <!-- Rows -->
+                <g font-family="JetBrains Mono, monospace" font-size="8">
+                  <text x="10" y="42" font-weight="700" fill="#13221d">Total CAD Site</text>
+                  <text x="252" y="42" text-anchor="end" font-weight="700" fill="#13221d">3,84,256 Sq.ft (100%)</text>
+                  <text x="10" y="54" font-size="7" fill="#52675e">Survey Ref: 52.00 Bigha / 42,466 Gaj</text>
+                  <line x1="10" y1="62" x2="252" y2="62" stroke="#c7d2cc" stroke-width="0.7" />
+
+                  <text x="10" y="78" font-weight="700" fill="#146c34">Plotted Area (159)</text>
+                  <text x="252" y="78" text-anchor="end" font-weight="700" fill="#13221d">2,03,824 Sq.ft (53.04%)</text>
+                  <text x="10" y="90" font-size="7" fill="#52675e">22,647 Gaj &middot; 152 std + 7 corner &gt;150G</text>
+                  <line x1="10" y1="98" x2="252" y2="98" stroke="#c7d2cc" stroke-width="0.7" />
+
+                  <text x="10" y="114" font-weight="700" fill="#0d5226">Parks &amp; Greens (3)</text>
+                  <text x="252" y="114" text-anchor="end" font-weight="700" fill="#0d5226">55,581 Sq.ft (14.46%)</text>
+                  <text x="10" y="126" font-size="7" fill="#185c37">Target 13.0%&ndash;15.0% strictly met</text>
+                  <line x1="10" y1="134" x2="252" y2="134" stroke="#c7d2cc" stroke-width="0.7" />
+
+                  <text x="10" y="150" font-weight="700" fill="#354941">Road Network (13)</text>
+                  <text x="252" y="150" text-anchor="end" font-weight="700" fill="#13221d">1,24,850 Sq.ft (32.49%)</text>
+                  <text x="10" y="162" font-size="7" fill="#52675e">Main 12.00 m Spine + 9.00 m Streets</text>
+                  <line x1="10" y1="170" x2="252" y2="170" stroke="#c7d2cc" stroke-width="0.7" />
+
+                  <text x="10" y="186" font-weight="700" fill="#13221d">Min Frontage</text>
+                  <text x="252" y="186" text-anchor="end" font-weight="700" fill="#0d5226">23.5&prime; (&ge; 23.0&prime; rule)</text>
+                  <text x="10" y="199" font-weight="700" fill="#13221d">Plot Size Range</text>
+                  <text x="252" y="199" text-anchor="end" font-weight="700" fill="#13221d">121&ndash;182 Gaj</text>
+                  <text x="10" y="212" font-weight="700" fill="#13221d">North Plots (NE+NW)</text>
+                  <text x="252" y="212" text-anchor="end" font-weight="700" fill="#0d5226">119 / 159 (74.8%)</text>
+                  <text x="10" y="225" font-weight="700" fill="#13221d">South / SW Plots</text>
+                  <text x="252" y="225" text-anchor="end" font-weight="700" fill="#0d5226">0 (0.0%)</text>
+                  <text x="10" y="238" font-size="7" fill="#354941">100.00% Exact Partition &middot; 0.00 Sq.ft gap</text>
+                </g>
+              </g>
+
+              <!-- Symbology Legend -->
+              <g id="sheet-legend" transform="translate(678, 490)">
+                <rect x="0" y="0" width="262" height="175" fill="#f7faf8" stroke="#c7d2cc" stroke-width="1" />
+                <text x="10" y="19" font-family="Archivo, sans-serif" font-size="9" font-weight="700" fill="#13221d">ORIENTATION &amp; BOUNDARY KEY</text>
+
+                <g font-family="JetBrains Mono, monospace" font-size="7.8" fill="#13221d">
+                  <rect x="10" y="30" width="14" height="10" fill="#e8f5ee" stroke="#2c7a4b" />
+                  <text x="31" y="38">38&deg; NE Facing Plots (45) &mdash; Vastu Ideal</text>
+
+                  <rect x="10" y="49" width="14" height="10" fill="#e7f2f4" stroke="#246a7d" />
+                  <text x="31" y="57">308&deg; NW Facing Plots (74) &mdash; North Half</text>
+
+                  <rect x="10" y="68" width="14" height="10" fill="#fbf3e4" stroke="#a6691e" />
+                  <text x="31" y="76">128&deg; ESE Facing Plots (40) &mdash; East Tilt</text>
+
+                  <rect x="10" y="87" width="14" height="10" fill="#d8f0e1" stroke="#247844" />
+                  <text x="31" y="95">Green Parks (14.46% / 3 Zones)</text>
+
+                  <rect x="10" y="106" width="14" height="10" fill="#e2eae5" stroke="#5c786c" />
+                  <text x="31" y="114">12.00 m Main Spine + 9.00 m Streets</text>
+
+                  <line x1="10" y1="130" x2="24" y2="130" stroke="#b83721" stroke-width="3.2" />
+                  <text x="31" y="133" fill="#b83721" font-weight="700">Closed Boundary Wall (Past 150&prime; &amp; Chakroad)</text>
+
+                  <line x1="10" y1="149" x2="24" y2="149" stroke="#146c34" stroke-width="3.2" />
+                  <text x="31" y="152" fill="#0d5226" font-weight="700">12m Entrance Gate (75&prime;&ndash;150&prime; Karodi Zone)</text>
+                </g>
+              </g>
+            </g>
+          </svg>
+          <div class="zoom-readout" id="zoom-readout">100% &middot; Drag to pan, scroll to zoom, click any plot</div>
+        </div>
+      </div>
+
+      <aside class="inspector-pane" id="inspector-pane" aria-label="Plot inspector and compliance check">
+        <section class="insp-section">
+          <div class="search-row">
+            <input type="text" id="plot-search-input" class="search-input" placeholder="Find P-001..P-159" aria-label="Find plot by ID" />
+            <button type="button" id="plot-search-btn" class="search-go">Locate</button>
+          </div>
+          <p class="hint-note" id="search-feedback">Select any of 159 plots or 3 parks on the plan to inspect dimensions &amp; road frontage.</p>
+        </section>
+
+        <section class="insp-section" id="selection-card">
+          <h2 class="insp-heading">
+            <span id="sel-title">Design 01 &middot; Plot Summary</span>
+            <span id="sel-badge" class="insp-tag insp-tag--ok">2D Verified</span>
+          </h2>
+          <div class="spec-grid">
+            <div class="spec-cell">
+              <div class="spec-k">Area (Gaj)</div>
+              <div class="spec-v" id="sel-gaj">121.0&ndash;182.0</div>
+            </div>
+            <div class="spec-cell">
+              <div class="spec-k">Area (Sq.ft)</div>
+              <div class="spec-v" id="sel-sqft">2,03,824</div>
+            </div>
+            <div class="spec-cell">
+              <div class="spec-k">Dimensions</div>
+              <div class="spec-v" id="sel-dims">Min 23.5&prime; Front</div>
+            </div>
+            <div class="spec-cell">
+              <div class="spec-k">Compass Facing</div>
+              <div class="spec-v" id="sel-facing">74.8% NE / NW</div>
+            </div>
+            <div class="spec-cell">
+              <div class="spec-k">Block / Zone</div>
+              <div class="spec-v" id="sel-block">14 Blocks</div>
+            </div>
+            <div class="spec-cell">
+              <div class="spec-k">Access Road</div>
+              <div class="spec-v" id="sel-road">12m &amp; 9m</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="insp-section">
+          <h2 class="insp-heading">
+            <span>Constraint Check</span>
+            <span class="insp-tag insp-tag--ok">All Passed</span>
+          </h2>
+          <ul class="compliance-list">
+            <li class="compliance-item"><span class="comp-k">Gate Placement</span><span class="comp-v comp-v--ok">110.6&prime;&ndash;150.0&prime; (in 75&prime;&ndash;150&prime;)</span></li>
+            <li class="compliance-item"><span class="comp-k">Wall Past 150&prime; + Chakroad</span><span class="comp-v comp-v--ok">Closed (0 openings)</span></li>
+            <li class="compliance-item"><span class="comp-k">Main Avenue Width</span><span class="comp-v">12.00 m (39.37&prime;)</span></li>
+            <li class="compliance-item"><span class="comp-k">Internal Streets</span><span class="comp-v">9.00 m (29.53&prime;)</span></li>
+            <li class="compliance-item"><span class="comp-k">Park Allocation</span><span class="comp-v comp-v--ok">14.46% (&le; 15% cap)</span></li>
+            <li class="compliance-item"><span class="comp-k">Min Plot Frontage</span><span class="comp-v comp-v--ok">23.5&prime; (&ge; 23.0&prime;)</span></li>
+            <li class="compliance-item"><span class="comp-k">120&ndash;150 Gaj Share</span><span class="comp-v">152 std + 7 corner</span></li>
+            <li class="compliance-item"><span class="comp-k">South / SW Plots</span><span class="comp-v comp-v--ok">0 / 159 (0.0%)</span></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const isEmbedded = window.self !== window.top;
+      if (isEmbedded) {
+        document.body.classList.add('is-embedded');
+      }
+
+      const DATA = {"summary":{"total_sqft":384255.61,"total_gaj":42695.07,"plot_count":159,"plot_sqft":203823.94,"plot_gaj":22647.1,"plot_pct":53.04,"park_sqft":55581.46,"park_gaj":6175.72,"park_pct":14.46,"road_sqft":124850.21,"road_gaj":13872.25,"road_pct":32.49,"residual_sqft":-0.0,"min_front_ft":23.5,"min_gaj":121.0,"max_gaj":182.0,"in_120_150_gaj":152,"gt_150_gaj":7,"count_NE":45,"count_NW":74,"count_ESE":40,"count_SW_S":0},"parks":[{"id":"PK-01","name":"North Promenade Park","area_sqft":9228.19,"area_gaj":1025.35,"pct":2.4,"cx":254.73,"cy":11.0},{"id":"PK-02","name":"Central Community Park","area_sqft":30168.69,"area_gaj":3352.08,"pct":7.85,"cx":354.38,"cy":289.5},{"id":"PK-03","name":"Chakroad Eco-Green Belt","area_sqft":16184.58,"area_gaj":1798.29,"pct":4.21,"cx":556.31,"cy":411.94}],"plots":[{"id":"P-001","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":13.38},{"id":"P-002","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":40.15},{"id":"P-003","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":66.91},{"id":"P-004","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":93.68},{"id":"P-005","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":120.44},{"id":"P-006","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":147.21},{"id":"P-007","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":173.97},{"id":"P-008","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":200.74},{"id":"P-009","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":227.5},{"id":"P-010","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":254.27},{"id":"P-011","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":281.03},{"id":"P-012","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":307.8},{"id":"P-013","block":"W-North","area_sqft":1204.42,"area_gaj":133.82,"front":26.76,"depth":45.0,"facing":"NE","corner":false,"dim_str":"26.8'\u00d745'","cx":22.5,"cy":334.56},{"id":"P-014","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":391.0},{"id":"P-015","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":418.06},{"id":"P-016","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":445.12},{"id":"P-017","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":472.18},{"id":"P-018","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":499.24},{"id":"P-019","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":526.29},{"id":"P-020","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":553.35},{"id":"P-021","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":580.41},{"id":"P-022","block":"W-South","area_sqft":1217.64,"area_gaj":135.29,"front":27.06,"depth":45.0,"facing":"NE","corner":false,"dim_str":"27.1'\u00d745'","cx":22.5,"cy":607.47},{"id":"P-023","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":68.0},{"id":"P-024","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":100.93},{"id":"P-025","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":133.87},{"id":"P-026","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":166.8},{"id":"P-027","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":199.74},{"id":"P-028","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":232.67},{"id":"P-029","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":265.61},{"id":"P-030","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":298.54},{"id":"P-031","block":"A-Spine-N","area_sqft":1189.04,"area_gaj":132.12,"front":32.94,"depth":36.1,"facing":"NE","corner":false,"dim_str":"32.9'\u00d736.1'","cx":92.58,"cy":331.48},{"id":"P-032","block":"A-Spine-S","area_sqft":1255.99,"area_gaj":139.55,"front":34.79,"depth":36.1,"facing":"NE","corner":false,"dim_str":"34.8'\u00d736.1'","cx":92.58,"cy":394.87},{"id":"P-033","block":"A-Spine-S","area_sqft":1255.99,"area_gaj":139.55,"front":34.79,"depth":36.1,"facing":"NE","corner":false,"dim_str":"34.8'\u00d736.1'","cx":92.58,"cy":429.66},{"id":"P-034","block":"A-Spine-S","area_sqft":1255.99,"area_gaj":139.55,"front":34.79,"depth":36.1,"facing":"NE","corner":false,"dim_str":"34.8'\u00d736.1'","cx":92.58,"cy":464.45},{"id":"P-035","block":"A-Spine-S","area_sqft":1255.99,"area_gaj":139.55,"front":34.79,"depth":36.1,"facing":"NE","corner":false,"dim_str":"34.8'\u00d736.1'","cx":92.58,"cy":499.24},{"id":"P-036","block":"A-Spine-S","area_sqft":1255.99,"area_gaj":139.55,"front":34.79,"depth":36.1,"facing":"NE","corner":false,"dim_str":"34.8'\u00d736.1'","cx":92.58,"cy":534.03},{"id":"P-037","block":"A-Spine-S","area_sqft":1255.99,"area_gaj":139.55,"front":34.79,"depth":36.1,"facing":"NE","corner":false,"dim_str":"34.8'\u00d736.1'","cx":92.58,"cy":568.82},{"id":"P-038","block":"A-Spine-S","area_sqft":1255.99,"area_gaj":139.55,"front":34.79,"depth":36.1,"facing":"NE","corner":false,"dim_str":"34.8'\u00d736.1'","cx":92.58,"cy":603.61},{"id":"P-039","block":"BL-Gate","area_sqft":1280.61,"area_gaj":142.29,"front":27.66,"depth":46.3,"facing":"NW","corner":false,"dim_str":"27.7'\u00d746.3'","cx":13.83,"cy":673.68},{"id":"P-040","block":"BL-Gate","area_sqft":1280.61,"area_gaj":142.29,"front":27.66,"depth":46.3,"facing":"NW","corner":false,"dim_str":"27.7'\u00d746.3'","cx":41.49,"cy":673.68},{"id":"P-041","block":"BL-Gate","area_sqft":1280.61,"area_gaj":142.29,"front":27.66,"depth":46.3,"facing":"NW","corner":false,"dim_str":"27.7'\u00d746.3'","cx":69.14,"cy":673.68},{"id":"P-042","block":"BL-Gate","area_sqft":1280.61,"area_gaj":142.29,"front":27.66,"depth":46.3,"facing":"NW","corner":false,"dim_str":"27.7'\u00d746.3'","cx":96.8,"cy":673.68},{"id":"P-043","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":162.33,"cy":76.53},{"id":"P-044","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":187.0,"cy":76.53},{"id":"P-045","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":211.67,"cy":76.53},{"id":"P-046","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":236.34,"cy":76.53},{"id":"P-047","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":261.01,"cy":76.53},{"id":"P-048","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":285.67,"cy":76.53},{"id":"P-049","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":310.34,"cy":76.53},{"id":"P-050","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":335.01,"cy":76.53},{"id":"P-051","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":359.68,"cy":76.53},{"id":"P-052","block":"E1","area_sqft":1233.41,"area_gaj":137.05,"front":24.67,"depth":50.0,"facing":"NW","corner":false,"dim_str":"24.7'\u00d750.0'","cx":384.35,"cy":76.53},{"id":"P-053","block":"E1","area_sqft":1507.19,"area_gaj":167.47,"front":23.5,"depth":50.0,"facing":"NW","corner":true,"dim_str":"23.5'\u201336.8'\u00d750.0'","cx":411.75,"cy":76.53},{"id":"P-054","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":163.0,"cy":126.53},{"id":"P-055","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":189.0,"cy":126.53},{"id":"P-056","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":214.99,"cy":126.53},{"id":"P-057","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":240.99,"cy":126.53},{"id":"P-058","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":266.99,"cy":126.53},{"id":"P-059","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":292.98,"cy":126.53},{"id":"P-060","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":318.98,"cy":126.53},{"id":"P-061","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":344.98,"cy":126.53},{"id":"P-062","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":370.97,"cy":126.53},{"id":"P-063","block":"E2","area_sqft":1299.84,"area_gaj":144.43,"front":26.0,"depth":50.0,"facing":"ESE","corner":false,"dim_str":"26.0'\u00d750.0'","cx":396.97,"cy":126.53},{"id":"P-064","block":"E2","area_sqft":1507.19,"area_gaj":167.47,"front":23.5,"depth":50.0,"facing":"NE","corner":true,"dim_str":"23.5'\u201336.8'\u00d750.0'","cx":425.04,"cy":126.53},{"id":"P-065","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":162.78,"cy":206.06},{"id":"P-066","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":188.33,"cy":206.06},{"id":"P-067","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":213.89,"cy":206.06},{"id":"P-068","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":239.44,"cy":206.06},{"id":"P-069","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":265.0,"cy":206.06},{"id":"P-070","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":290.55,"cy":206.06},{"id":"P-071","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":316.11,"cy":206.06},{"id":"P-072","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":341.66,"cy":206.06},{"id":"P-073","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":367.22,"cy":206.06},{"id":"P-074","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":392.77,"cy":206.06},{"id":"P-075","block":"E3","area_sqft":1277.74,"area_gaj":141.97,"front":25.55,"depth":50.0,"facing":"NW","corner":false,"dim_str":"25.6'\u00d750.0'","cx":418.33,"cy":206.06},{"id":"P-076","block":"E3","area_sqft":1507.19,"area_gaj":167.47,"front":23.5,"depth":50.0,"facing":"NW","corner":true,"dim_str":"23.5'\u201336.8'\u00d750.0'","cx":446.18,"cy":206.06},{"id":"P-077","block":"CP-West","area_sqft":1338.39,"area_gaj":148.71,"front":29.22,"depth":45.8,"facing":"NE","corner":false,"dim_str":"29.2'\u00d745.8'","cx":172.9,"cy":245.67},{"id":"P-078","block":"CP-West","area_sqft":1338.39,"area_gaj":148.71,"front":29.22,"depth":45.8,"facing":"NE","corner":false,"dim_str":"29.2'\u00d745.8'","cx":172.9,"cy":274.89},{"id":"P-079","block":"CP-West","area_sqft":1338.39,"area_gaj":148.71,"front":29.22,"depth":45.8,"facing":"NE","corner":false,"dim_str":"29.2'\u00d745.8'","cx":172.9,"cy":304.11},{"id":"P-080","block":"CP-West","area_sqft":1338.39,"area_gaj":148.71,"front":29.22,"depth":45.8,"facing":"NE","corner":false,"dim_str":"29.2'\u00d745.8'","cx":172.9,"cy":333.33},{"id":"P-081","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":161.9,"cy":404.22},{"id":"P-082","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":185.71,"cy":404.22},{"id":"P-083","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":209.52,"cy":404.22},{"id":"P-084","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":233.33,"cy":404.22},{"id":"P-085","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":257.13,"cy":404.22},{"id":"P-086","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":280.94,"cy":404.22},{"id":"P-087","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":304.75,"cy":404.22},{"id":"P-088","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":328.55,"cy":404.22},{"id":"P-089","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":352.36,"cy":404.22},{"id":"P-090","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":376.17,"cy":404.22},{"id":"P-091","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":399.98,"cy":404.22},{"id":"P-092","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":423.78,"cy":404.22},{"id":"P-093","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":447.59,"cy":404.22},{"id":"P-094","block":"E4","area_sqft":1273.69,"area_gaj":141.52,"front":23.81,"depth":53.5,"facing":"NW","corner":false,"dim_str":"23.8'\u00d753.5'","cx":471.4,"cy":404.22},{"id":"P-095","block":"E4","area_sqft":1637.57,"area_gaj":181.95,"front":23.5,"depth":53.5,"facing":"NW","corner":true,"dim_str":"23.5'\u201337.7'\u00d753.5'","cx":498.61,"cy":404.22},{"id":"P-096","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":162.41,"cy":457.72},{"id":"P-097","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":187.23,"cy":457.72},{"id":"P-098","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":212.06,"cy":457.72},{"id":"P-099","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":236.88,"cy":457.72},{"id":"P-100","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":261.7,"cy":457.72},{"id":"P-101","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":286.53,"cy":457.72},{"id":"P-102","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":311.35,"cy":457.72},{"id":"P-103","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":336.17,"cy":457.72},{"id":"P-104","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":360.99,"cy":457.72},{"id":"P-105","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":385.82,"cy":457.72},{"id":"P-106","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":410.64,"cy":457.72},{"id":"P-107","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":435.46,"cy":457.72},{"id":"P-108","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":460.29,"cy":457.72},{"id":"P-109","block":"E5","area_sqft":1328.02,"area_gaj":147.56,"front":24.82,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.8'\u00d753.5'","cx":485.11,"cy":457.72},{"id":"P-110","block":"E5","area_sqft":1637.57,"area_gaj":181.95,"front":23.5,"depth":53.5,"facing":"NE","corner":true,"dim_str":"23.5'\u201337.7'\u00d753.5'","cx":512.82,"cy":457.72},{"id":"P-111","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":162.32,"cy":540.75},{"id":"P-112","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":186.96,"cy":540.75},{"id":"P-113","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":211.6,"cy":540.75},{"id":"P-114","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":236.24,"cy":540.75},{"id":"P-115","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":260.88,"cy":540.75},{"id":"P-116","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":285.51,"cy":540.75},{"id":"P-117","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":310.15,"cy":540.75},{"id":"P-118","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":334.79,"cy":540.75},{"id":"P-119","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":359.43,"cy":540.75},{"id":"P-120","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":384.07,"cy":540.75},{"id":"P-121","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":408.71,"cy":540.75},{"id":"P-122","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":433.35,"cy":540.75},{"id":"P-123","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":457.99,"cy":540.75},{"id":"P-124","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":482.63,"cy":540.75},{"id":"P-125","block":"E6","area_sqft":1318.18,"area_gaj":146.46,"front":24.64,"depth":53.5,"facing":"NW","corner":false,"dim_str":"24.6'\u00d753.5'","cx":507.26,"cy":540.75},{"id":"P-126","block":"E6","area_sqft":1637.57,"area_gaj":181.95,"front":23.5,"depth":53.5,"facing":"NW","corner":true,"dim_str":"23.5'\u201337.7'\u00d753.5'","cx":534.89,"cy":540.75},{"id":"P-127","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":161.99,"cy":594.25},{"id":"P-128","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":185.98,"cy":594.25},{"id":"P-129","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":209.97,"cy":594.25},{"id":"P-130","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":233.96,"cy":594.25},{"id":"P-131","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":257.94,"cy":594.25},{"id":"P-132","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":281.93,"cy":594.25},{"id":"P-133","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":305.92,"cy":594.25},{"id":"P-134","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":329.91,"cy":594.25},{"id":"P-135","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":353.89,"cy":594.25},{"id":"P-136","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":377.88,"cy":594.25},{"id":"P-137","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":401.87,"cy":594.25},{"id":"P-138","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":425.86,"cy":594.25},{"id":"P-139","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":449.85,"cy":594.25},{"id":"P-140","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":473.83,"cy":594.25},{"id":"P-141","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":497.82,"cy":594.25},{"id":"P-142","block":"E7","area_sqft":1283.34,"area_gaj":142.59,"front":23.99,"depth":53.5,"facing":"ESE","corner":false,"dim_str":"24.0'\u00d753.5'","cx":521.81,"cy":594.25},{"id":"P-143","block":"E7","area_sqft":1637.57,"area_gaj":181.95,"front":23.5,"depth":53.5,"facing":"NE","corner":true,"dim_str":"23.5'\u201337.7'\u00d753.5'","cx":549.11,"cy":594.25},{"id":"P-144","block":"K-Wall","area_sqft":1324.0,"area_gaj":147.11,"front":28.59,"depth":46.3,"facing":"NW","corner":false,"dim_str":"28.6'\u00d746.3'","cx":164.3,"cy":673.68},{"id":"P-145","block":"K-Wall","area_sqft":1324.0,"area_gaj":147.11,"front":28.59,"depth":46.3,"facing":"NW","corner":false,"dim_str":"28.6'\u00d746.3'","cx":192.89,"cy":673.68},{"id":"P-146","block":"K-Wall","area_sqft":1324.0,"area_gaj":147.11,"front":28.59,"depth":46.3,"facing":"NW","corner":false,"dim_str":"28.6'\u00d746.3'","cx":221.49,"cy":673.68},{"id":"P-147","block":"K-Wall","area_sqft":1323.53,"area_gaj":147.06,"front":28.59,"depth":46.24,"facing":"NW","corner":false,"dim_str":"28.6'\u00d746.2'","cx":251.34,"cy":678.29},{"id":"P-148","block":"K-Wall","area_sqft":1314.69,"area_gaj":146.08,"front":28.59,"depth":45.98,"facing":"NW","corner":false,"dim_str":"28.6'\u00d746.0'","cx":278.68,"cy":673.52},{"id":"P-149","block":"K-Wall","area_sqft":1302.74,"area_gaj":144.75,"front":28.59,"depth":45.56,"facing":"NW","corner":false,"dim_str":"28.6'\u00d745.6'","cx":307.27,"cy":673.31},{"id":"P-150","block":"K-Wall","area_sqft":1290.8,"area_gaj":143.42,"front":28.59,"depth":45.14,"facing":"NW","corner":false,"dim_str":"28.6'\u00d745.1'","cx":335.86,"cy":673.1},{"id":"P-151","block":"K-Wall","area_sqft":1278.85,"area_gaj":142.09,"front":28.59,"depth":44.72,"facing":"NW","corner":false,"dim_str":"28.6'\u00d744.7'","cx":364.46,"cy":672.89},{"id":"P-152","block":"K-Wall","area_sqft":1266.91,"area_gaj":140.77,"front":28.59,"depth":44.31,"facing":"NW","corner":false,"dim_str":"28.6'\u00d744.3'","cx":393.05,"cy":672.68},{"id":"P-153","block":"K-Wall","area_sqft":1250.69,"area_gaj":138.97,"front":28.59,"depth":43.67,"facing":"NW","corner":false,"dim_str":"28.6'\u00d743.7'","cx":420.49,"cy":676.79},{"id":"P-154","block":"K-Wall","area_sqft":1222.13,"area_gaj":135.79,"front":28.59,"depth":42.74,"facing":"NW","corner":false,"dim_str":"28.6'\u00d742.7'","cx":450.24,"cy":671.9},{"id":"P-155","block":"K-Wall","area_sqft":1192.81,"area_gaj":132.53,"front":28.59,"depth":41.71,"facing":"NW","corner":false,"dim_str":"28.6'\u00d741.7'","cx":478.84,"cy":671.38},{"id":"P-156","block":"K-Wall","area_sqft":1163.48,"area_gaj":129.28,"front":28.59,"depth":40.69,"facing":"NW","corner":false,"dim_str":"28.6'\u00d740.7'","cx":507.43,"cy":670.87},{"id":"P-157","block":"K-Wall","area_sqft":1134.16,"area_gaj":126.02,"front":28.59,"depth":39.66,"facing":"NW","corner":false,"dim_str":"28.6'\u00d739.7'","cx":536.03,"cy":670.36},{"id":"P-158","block":"K-Wall","area_sqft":1089.28,"area_gaj":121.03,"front":28.59,"depth":37.98,"facing":"NW","corner":false,"dim_str":"28.6'\u00d738.0'","cx":562.76,"cy":673.51},{"id":"P-159","block":"K-Wall","area_sqft":1246.75,"area_gaj":138.53,"front":31.0,"depth":34.99,"facing":"NW","corner":true,"dim_str":"31.0'\u00d735.0'","cx":596.62,"cy":668.02}]};
+      const plotsById = new Map(DATA.plots.map(p => [p.id, p]));
+      const parksById = new Map(DATA.parks.map(p => [p.id, p]));
+
+      const svg = document.getElementById('cad-svg');
+      const readout = document.getElementById('zoom-readout');
+      const plotNodes = Array.from(document.querySelectorAll('.cad-plot'));
+      const parkNodes = Array.from(document.querySelectorAll('.cad-park'));
+      const filterBtns = Array.from(document.querySelectorAll('.flt-btn'));
+      const inspPane = document.getElementById('inspector-pane');
+      const toggleInspBtn = document.getElementById('toggle-inspector-btn');
+      const searchInput = document.getElementById('plot-search-input');
+      const searchBtn = document.getElementById('plot-search-btn');
+      const searchFeedback = document.getElementById('search-feedback');
+
+      if (isEmbedded) {
+        inspPane.classList.add('is-hidden');
+        toggleInspBtn.classList.remove('is-active');
+      }
+
+      const HOME_VB = { x: -75, y: -78, w: 1035, h: 896 };
+      let vb = { ...HOME_VB };
+      let selectedId = null;
+
+      function applyViewBox() {
+        svg.setAttribute('viewBox', `${vb.x.toFixed(2)} ${vb.y.toFixed(2)} ${vb.w.toFixed(2)} ${vb.h.toFixed(2)}`);
+        const pct = Math.round((HOME_VB.w / vb.w) * 100);
+        readout.textContent = `${pct}% · Drag to pan, scroll to zoom, click any plot`;
+      }
+
+      function zoomAt(factor, clientX, clientY) {
+        const rect = svg.getBoundingClientRect();
+        const rx = clientX !== undefined ? (clientX - rect.left) / rect.width : 0.5;
+        const ry = clientY !== undefined ? (clientY - rect.top) / rect.height : 0.5;
+        const newW = Math.min(HOME_VB.w * 1.4, Math.max(115, vb.w * factor));
+        const newH = newW * (HOME_VB.h / HOME_VB.w);
+        vb.x += (vb.w - newW) * rx;
+        vb.y += (vb.h - newH) * ry;
+        vb.w = newW;
+        vb.h = newH;
+        applyViewBox();
+      }
+
+      document.getElementById('zoom-in-btn').addEventListener('click', () => zoomAt(0.75));
+      document.getElementById('zoom-out-btn').addEventListener('click', () => zoomAt(1.33));
+      document.getElementById('zoom-fit-btn').addEventListener('click', () => {
+        vb = { ...HOME_VB };
+        applyViewBox();
+      });
+
+      svg.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        zoomAt(e.deltaY > 0 ? 1.14 : 0.88, e.clientX, e.clientY);
+      }, { passive: false });
+
+      // Drag to Pan
+      let drag = null;
+      svg.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        drag = { startX: e.clientX, startY: e.clientY, origX: vb.x, origY: vb.y, moved: false };
+      });
+      window.addEventListener('pointermove', (e) => {
+        if (!drag) return;
+        const rect = svg.getBoundingClientRect();
+        const dxPx = e.clientX - drag.startX;
+        const dyPx = e.clientY - drag.startY;
+        if (!drag.moved && Math.hypot(dxPx, dyPx) < 4) return;
+        drag.moved = true;
+        svg.classList.add('is-panning');
+        const scale = Math.max(vb.w / rect.width, vb.h / rect.height);
+        vb.x = drag.origX - dxPx * scale;
+        vb.y = drag.origY - dyPx * scale;
+        applyViewBox();
+      });
+      window.addEventListener('pointerup', () => {
+        if (drag && drag.moved) {
+          setTimeout(() => { svg.classList.remove('is-panning'); }, 20);
+        }
+        drag = null;
+      });
+
+      function setSelection(id, panTo) {
+        selectedId = id;
+        if (inspPane.classList.contains('is-hidden')) {
+          inspPane.classList.remove('is-hidden');
+          toggleInspBtn.classList.add('is-active');
+        }
+        plotNodes.forEach(n => n.classList.toggle('is-selected', n.dataset.id === id));
+        parkNodes.forEach(n => n.classList.toggle('is-selected', n.dataset.id === id));
+
+        const titleEl = document.getElementById('sel-title');
+        const badgeEl = document.getElementById('sel-badge');
+        const gajEl = document.getElementById('sel-gaj');
+        const sqftEl = document.getElementById('sel-sqft');
+        const dimsEl = document.getElementById('sel-dims');
+        const facingEl = document.getElementById('sel-facing');
+        const blockEl = document.getElementById('sel-block');
+        const roadEl = document.getElementById('sel-road');
+
+        const p = plotsById.get(id);
+        if (p) {
+          const azMap = { NE: '38° NE', NW: '308° NW', ESE: '128° ESE' };
+          const badgeCls = p.facing === 'ESE' ? 'insp-tag--ese' : (p.facing === 'NW' ? 'insp-tag--nw' : 'insp-tag--ok');
+          titleEl.textContent = `Plot ${p.id}`;
+          badgeEl.textContent = p.area_gaj > 150 ? 'Corner >150 Gaj' : (p.corner ? 'Corner Plot' : 'Standard Plot');
+          badgeEl.className = `insp-tag ${badgeCls}`;
+          gajEl.textContent = `${p.area_gaj.toFixed(1)} Gaj`;
+          sqftEl.textContent = `${Math.round(p.area_sqft).toLocaleString('en-IN')} Sq.ft`;
+          dimsEl.textContent = p.dim_str;
+          facingEl.textContent = azMap[p.facing] || p.facing;
+          blockEl.textContent = `Block ${p.block}`;
+          roadEl.textContent = p.block.startsWith('A-Spine') ? '12.00 m Main' : '9.00 m Street';
+          searchFeedback.textContent = `Focused ${p.id} · Front ${p.front.toFixed(1)}' (min 23.0' rule).`;
+          if (panTo) {
+            vb.w = 240;
+            vb.h = vb.w * (HOME_VB.h / HOME_VB.w);
+            vb.x = p.cx - vb.w * 0.5;
+            vb.y = p.cy - vb.h * 0.5;
+            applyViewBox();
+          }
+          return;
+        }
+
+        const pk = parksById.get(id);
+        if (pk) {
+          titleEl.textContent = `${pk.id} · ${pk.name}`;
+          badgeEl.textContent = `${pk.pct.toFixed(2)}% Share`;
+          badgeEl.className = 'insp-tag insp-tag--ok';
+          gajEl.textContent = `${Math.round(pk.area_gaj).toLocaleString('en-IN')} Gaj`;
+          sqftEl.textContent = `${Math.round(pk.area_sqft).toLocaleString('en-IN')} Sq.ft`;
+          dimsEl.textContent = 'Landscape Open';
+          facingEl.textContent = 'Multi-Block Access';
+          blockEl.textContent = 'Green Reserve';
+          roadEl.textContent = '9m & 12m Adj.';
+          searchFeedback.textContent = `Showing park ${pk.id} (${pk.pct.toFixed(2)}% of total site).`;
+        }
+      }
+
+      plotNodes.forEach(node => {
+        node.addEventListener('click', () => {
+          if (svg.classList.contains('is-panning')) return;
+          setSelection(node.dataset.id, false);
+        });
+        node.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setSelection(node.dataset.id, true);
+          }
+        });
+      });
+
+      parkNodes.forEach(node => {
+        node.addEventListener('click', () => {
+          if (svg.classList.contains('is-panning')) return;
+          setSelection(node.dataset.id, false);
+        });
+      });
+
+      // Orientation Filters
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const flt = btn.dataset.filter;
+          filterBtns.forEach(b => b.classList.toggle('is-active', b === btn));
+          plotNodes.forEach(n => {
+            let match = true;
+            if (flt === 'ne') match = n.dataset.facing === 'NE';
+            else if (flt === 'nw') match = n.dataset.facing === 'NW';
+            else if (flt === 'ese') match = n.dataset.facing === 'ESE';
+            else if (flt === 'oversized') match = n.dataset.oversized === '1';
+            n.classList.toggle('is-dimmed', !match);
+          });
+        });
+      });
+
+      // Plot Search
+      function runSearch() {
+        const raw = searchInput.value.trim().toUpperCase();
+        if (!raw) return;
+        let normalized = raw;
+        if (/^\d{1,3}$/.test(raw)) {
+          normalized = `P-${raw.padStart(3, '0')}`;
+        } else if (/^P\d{1,3}$/.test(raw)) {
+          normalized = `P-${raw.slice(1).padStart(3, '0')}`;
+        }
+        if (plotsById.has(normalized)) {
+          setSelection(normalized, true);
+        } else {
+          searchFeedback.textContent = `No plot matching "${searchInput.value}". Try P-001 through P-159.`;
+        }
+      }
+      searchBtn.addEventListener('click', runSearch);
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') runSearch();
+      });
+
+      toggleInspBtn.addEventListener('click', () => {
+        const hidden = inspPane.classList.toggle('is-hidden');
+        toggleInspBtn.classList.toggle('is-active', !hidden);
+      });
+
+      document.getElementById('export-svg-btn').addEventListener('click', () => {
+        const clone = svg.cloneNode(true);
+        clone.setAttribute('viewBox', `${HOME_VB.x} ${HOME_VB.y} ${HOME_VB.w} ${HOME_VB.h}`);
+        const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'colony-sheet-02-design-01-2d.svg';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      applyViewBox();
+    })();
+  </script>
+</body>
+</html>

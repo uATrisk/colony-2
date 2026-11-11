@@ -14,14 +14,15 @@
       src: './plans/outer-boundary.html'
     },
     {
-      id: 'design-01-2d',
-      sheetCode: 'DESIGN 01 · 2D',
-      title: 'Design 01 · 2D Colony Map Option',
-      shortMeta: '32.95 Bigha Net Plotted (63.37%)',
-      description: 'First 2D colony map design inside the locked 52.00 Bigha boundary. Every new map design opens in 2D first; a 3D view is added only if you approve that design.',
-      status: '2D Next',
-      statusKind: 'pending',
-      src: null
+      id: '2',
+      sheetCode: 'SHEET 02',
+      title: 'Sheet 02 · Design 01 (2D Colony Map)',
+      shortMeta: '159 Plots · 14.46% Park · Min 23.5\' Front',
+      description: '2D layout inside locked 52.00 Bigha perimeter: 12m gate inside 75–150 ft SW Karodi zone, closed wall past 150 ft, 9m streets, 121–182 Gaj (74.8% NE/NW, 0 SW).',
+      stageLabel: 'SHEET 02 · /colony-2/2/ (Design 01 · 2D Plot Subdivision)',
+      status: '2D Live',
+      statusKind: 'locked',
+      src: './2/'
     }
   ];
 

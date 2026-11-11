@@ -45,6 +45,17 @@
       status: '2D Live',
       statusKind: 'locked',
       src: './4/'
+    },
+    {
+      id: '5',
+      sheetCode: 'SHEET 05',
+      title: 'Sheet 05 · East-Central 12m Avenue Plan (2D)',
+      shortMeta: '179 Plots · 24.52% Min Road · 14.92% Park · 406 ft Spaced Parks',
+      description: 'Lowest-road 2D subdivision (24.52%) anchored on East-Central 12m Grand Avenue fed by 12m Karodi Gate (102–141.4 ft) & South Link: PK-02 West-Mid Sanctuary (5.50%) & PK-03 South-East Courtyard (4.18%) 406 ft apart + PK-01 East Slant Cutoff (5.24%), 179 plots @ 136–150 Gaj (min 23.2\' front, 0 SW).',
+      stageLabel: 'SHEET 05 · /colony-2/5/ (East-Central 12m Ave · 24.52% Min Road · 179 Plots · 2D)',
+      status: '2D Live',
+      statusKind: 'locked',
+      src: './5/'
     }
   ];
 

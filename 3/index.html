@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Sheet 03 · Central Spine &amp; Spaced Parks Plan (2D) — Colony 2</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -55,7 +55,7 @@
       display: flex;
       flex-direction: column;
       width: 100%;
-      height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
 
@@ -205,26 +205,22 @@
     .zoom-group {
       display: inline-flex;
       align-items: center;
-      border: 1px solid #354c43;
-      border-radius: var(--radius);
-      overflow: hidden;
-      background: #1a2d26;
+      gap: 3px;
     }
 
     .tool-btn {
       height: 28px;
-      padding: 0 8px;
-      border: none;
-      border-right: 1px solid #354c43;
-      background: transparent;
+      padding: 0 9px;
+      border: 1px solid #354c43;
+      border-radius: var(--radius);
+      background: #1a2d26;
       color: #e4ede8;
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
     }
-    .tool-btn:last-child { border-right: none; }
-    .tool-btn:hover { background: #264037; }
+    .tool-btn:hover { background: #264037; border-color: #6b8e7e; }
 
     .action-btn {
       height: 28px;
@@ -298,7 +294,7 @@
       right: 18px;
       width: 296px;
       max-width: calc(100% - 36px);
-      background: rgba(247, 250, 248, 0.97);
+      background: #f7faf8;
       border: 1px solid var(--border-ink);
       border-radius: 4px;
       box-shadow: 0 12px 28px rgba(19, 34, 29, 0.16);
@@ -631,17 +627,65 @@
       dominant-baseline: central;
     }
 
+    .tool-btn.is-active {
+      background: var(--accent-green);
+      color: #ffffff;
+    }
+
     @media (max-width: 720px) {
+      .cad-topbar { padding: 6px 8px; gap: 5px; }
+      .topbar-left { width: 100%; justify-content: space-between; gap: 6px; flex-wrap: nowrap; min-width: 0; }
+      .back-link { height: 32px; padding: 0 8px; font-size: 11px; flex-shrink: 0; }
+      .sheet-title-wrap { min-width: 0; flex: 1 1 auto; }
+      .sheet-title { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .sheet-subtitle { display: none; }
-      .stage-pane { padding: 6px; }
+      .hide-xs { display: none; }
+      .topbar-controls {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 5px;
+        align-items: center;
+      }
+      .filter-strip {
+        grid-column: 1 / -1;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 1px;
+      }
+      .filter-strip::-webkit-scrollbar { display: none; }
+      .flt-btn { height: 34px; padding: 0 10px; font-size: 11px; flex-shrink: 0; }
+      .top-search { min-width: 0; width: 100%; }
+      .search-input { width: 100%; min-width: 0; height: 34px; font-size: 12px; }
+      .search-go { height: 34px; padding: 0 10px; flex-shrink: 0; }
+      .zoom-group { gap: 3px; }
+      .tool-btn { height: 34px; padding: 0 8px; font-size: 11px; }
+      .action-btn { height: 34px; padding: 0 9px; font-size: 11px; }
+      .stage-pane { padding: 4px; }
+      .zoom-readout {
+        left: 6px;
+        right: 6px;
+        bottom: 6px;
+        font-size: 11px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .detail-card {
         top: auto;
-        right: 8px;
-        left: 8px;
-        bottom: 8px;
+        right: 6px;
+        left: 6px;
+        bottom: max(6px, env(safe-area-inset-bottom, 0px));
         width: auto;
         max-width: none;
+        max-height: 46dvh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
       }
+      .detail-close { width: 36px; height: 36px; font-size: 18px; }
     }
   </style>
 </head>
@@ -672,11 +716,12 @@
 
         <div class="zoom-group" role="group" aria-label="Drawing zoom controls">
           <button type="button" class="tool-btn" id="zoom-out-btn" title="Zoom out">&minus;</button>
-          <button type="button" class="tool-btn" id="zoom-fit-btn" title="Fit whole sheet">Fit</button>
+          <button type="button" class="tool-btn" id="zoom-fit-btn" title="Fit drawing">Fit</button>
+          <button type="button" class="tool-btn" id="view-toggle-btn" title="Toggle Colony / Full Drawing Sheet">Sheet</button>
           <button type="button" class="tool-btn" id="zoom-in-btn" title="Zoom in">+</button>
         </div>
 
-        <button type="button" class="action-btn" id="export-svg-btn">Export SVG</button>
+        <button type="button" class="action-btn" id="export-svg-btn"><span class="hide-xs">Export </span>SVG</button>
       </div>
     </header>
 
@@ -1149,28 +1194,54 @@
       const roadNodes = Array.from(document.querySelectorAll('.road-poly'));
       const filterBtns = Array.from(document.querySelectorAll('.flt-btn'));
 
-      const HOME_VB = { x: -75, y: -78, w: 1035, h: 896 };
-      let vb = { ...HOME_VB };
+      const FULL_VB = { x: -75, y: -78, w: 1035, h: 896 };
+      const COLONY_VB = { x: -38, y: -62, w: 706, h: 834 };
+      const viewToggleBtn = document.getElementById('view-toggle-btn');
+      let sheetViewMode = 'auto';
+      let userMovedView = false;
+
+      function isPortraitStage() {
+        const r = svg.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 ? r.width < r.height : window.innerWidth <= 720;
+      }
+
+      function getHomeVB() {
+        if (sheetViewMode === 'full') return FULL_VB;
+        if (sheetViewMode === 'colony') return COLONY_VB;
+        return isPortraitStage() ? COLONY_VB : FULL_VB;
+      }
+
+      let vb = { ...getHomeVB() };
       let hasSelection = false;
+
+      function syncViewToggleBtn() {
+        if (!viewToggleBtn) return;
+        const showingFull = getHomeVB() === FULL_VB;
+        viewToggleBtn.textContent = showingFull ? 'Map' : 'Sheet';
+        viewToggleBtn.classList.toggle('is-active', sheetViewMode !== 'auto');
+      }
 
       function applyViewBox() {
         svg.setAttribute('viewBox', `${vb.x.toFixed(2)} ${vb.y.toFixed(2)} ${vb.w.toFixed(2)} ${vb.h.toFixed(2)}`);
-        const pct = Math.round((HOME_VB.w / vb.w) * 100);
+        const home = getHomeVB();
+        const pct = Math.round((home.w / vb.w) * 100);
         readout.textContent = hasSelection
-          ? `${pct}% · Esc or click canvas to close details`
-          : `${pct}% · Click any plot, road, or park for details`;
+          ? `${pct}% · Tap canvas or Esc to close`
+          : `${pct}% · Tap plot, road, or park`;
       }
 
       function zoomAt(factor, clientX, clientY) {
         const rect = svg.getBoundingClientRect();
+        const home = getHomeVB();
         const fx = (clientX - rect.left) / rect.width;
         const fy = (clientY - rect.top) / rect.height;
-        const nextW = Math.min(1800, Math.max(120, vb.w * factor));
-        const nextH = nextW * (HOME_VB.h / HOME_VB.w);
+        const nextW = Math.min(1800, Math.max(100, vb.w * factor));
+        const nextH = nextW * (home.h / home.w);
         vb.x += (vb.w - nextW) * fx;
         vb.y += (vb.h - nextH) * fy;
         vb.w = nextW;
         vb.h = nextH;
+        userMovedView = true;
         applyViewBox();
       }
 
@@ -1183,45 +1254,131 @@
         zoomAt(1.33, r.left + r.width / 2, r.top + r.height / 2);
       });
       document.getElementById('zoom-fit-btn').addEventListener('click', () => {
-        vb = { ...HOME_VB };
+        userMovedView = false;
+        vb = { ...getHomeVB() };
         applyViewBox();
       });
+      if (viewToggleBtn) {
+        viewToggleBtn.addEventListener('click', () => {
+          const currentlyFull = getHomeVB() === FULL_VB;
+          sheetViewMode = currentlyFull ? 'colony' : 'full';
+          userMovedView = false;
+          vb = { ...getHomeVB() };
+          syncViewToggleBtn();
+          applyViewBox();
+        });
+      }
+      window.addEventListener('resize', () => {
+        if (!userMovedView && sheetViewMode === 'auto') {
+          vb = { ...getHomeVB() };
+          syncViewToggleBtn();
+          applyViewBox();
+        }
+      });
+      syncViewToggleBtn();
+      applyViewBox();
 
       svg.addEventListener('wheel', (e) => {
         e.preventDefault();
         zoomAt(e.deltaY > 0 ? 1.15 : 0.87, e.clientX, e.clientY);
       }, { passive: false });
 
-      let drag = null;
+      const pointers = new Map();
+      let panState = null;
+      let pinchState = null;
+      let suppressNextTap = false;
+
       svg.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0) return;
-        drag = { startX: e.clientX, startY: e.clientY, origX: vb.x, origY: vb.y, moved: false };
-      });
-      window.addEventListener('pointermove', (e) => {
-        if (!drag) return;
-        const rect = svg.getBoundingClientRect();
-        const dxPx = e.clientX - drag.startX;
-        const dyPx = e.clientY - drag.startY;
-        if (!drag.moved && Math.hypot(dxPx, dyPx) < 4) return;
-        drag.moved = true;
-        svg.classList.add('is-panning');
-        const scale = Math.max(vb.w / rect.width, vb.h / rect.height);
-        vb.x = drag.origX - dxPx * scale;
-        vb.y = drag.origY - dyPx * scale;
-        applyViewBox();
-      });
-      window.addEventListener('pointerup', (e) => {
-        const wasDrag = drag && drag.moved;
-        if (wasDrag) {
-          setTimeout(() => { svg.classList.remove('is-panning'); }, 20);
-        } else if (drag && !wasDrag) {
-          const hitInteractive = e.target && e.target.closest && e.target.closest('[data-kind]');
-          if (!hitInteractive && svg.contains(e.target) && hasSelection) {
-            clearSelection();
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pointers.size === 1) {
+          pinchState = null;
+          panState = { startX: e.clientX, startY: e.clientY, origX: vb.x, origY: vb.y, moved: false };
+        } else if (pointers.size === 2) {
+          const [p1, p2] = Array.from(pointers.values());
+          const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+          if (dist > 1) {
+            pinchState = {
+              dist,
+              midX: 0.5 * (p1.x + p2.x),
+              midY: 0.5 * (p1.y + p2.y),
+              origVb: { ...vb }
+            };
+            panState = null;
+            suppressNextTap = true;
           }
         }
-        drag = null;
       });
+      window.addEventListener('pointermove', (e) => {
+        if (!pointers.has(e.pointerId)) return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        const rect = svg.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+
+        if (pointers.size >= 2 && pinchState) {
+          const [p1, p2] = Array.from(pointers.values());
+          const curDist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+          if (curDist < 2) return;
+          const curMidX = 0.5 * (p1.x + p2.x);
+          const curMidY = 0.5 * (p1.y + p2.y);
+          const nextW = Math.min(1800, Math.max(100, pinchState.origVb.w * (pinchState.dist / curDist)));
+          const nextH = nextW * (pinchState.origVb.h / pinchState.origVb.w);
+          const fx = (pinchState.midX - rect.left) / rect.width;
+          const fy = (pinchState.midY - rect.top) / rect.height;
+          const anchorX = pinchState.origVb.x + pinchState.origVb.w * fx;
+          const anchorY = pinchState.origVb.y + pinchState.origVb.h * fy;
+          vb.w = nextW;
+          vb.h = nextH;
+          vb.x = anchorX - nextW * ((curMidX - rect.left) / rect.width);
+          vb.y = anchorY - nextH * ((curMidY - rect.top) / rect.height);
+          userMovedView = true;
+          svg.classList.add('is-panning');
+          applyViewBox();
+          return;
+        }
+
+        if (pointers.size === 1 && panState) {
+          const dxPx = e.clientX - panState.startX;
+          const dyPx = e.clientY - panState.startY;
+          if (!panState.moved && Math.hypot(dxPx, dyPx) < 6) return;
+          panState.moved = true;
+          suppressNextTap = true;
+          userMovedView = true;
+          svg.classList.add('is-panning');
+          const scale = Math.max(vb.w / rect.width, vb.h / rect.height);
+          vb.x = panState.origX - dxPx * scale;
+          vb.y = panState.origY - dyPx * scale;
+          applyViewBox();
+        }
+      });
+      function endPointer(e, isCancel) {
+        const hadSinglePan = pointers.size === 1 && panState && panState.moved;
+        pointers.delete(e.pointerId);
+        if (pointers.size === 1) {
+          const [rem] = Array.from(pointers.values());
+          panState = { startX: rem.x, startY: rem.y, origX: vb.x, origY: vb.y, moved: false };
+          pinchState = null;
+          return;
+        }
+        if (pointers.size === 0) {
+          const wasGesture = suppressNextTap || hadSinglePan || isCancel;
+          if (wasGesture) {
+            setTimeout(() => {
+              svg.classList.remove('is-panning');
+              suppressNextTap = false;
+            }, 40);
+          } else {
+            const hitInteractive = e.target && e.target.closest && e.target.closest('[data-kind]');
+            if (!hitInteractive && svg.contains(e.target) && hasSelection) {
+              clearSelection();
+            }
+          }
+          panState = null;
+          pinchState = null;
+        }
+      }
+      window.addEventListener('pointerup', (e) => endPointer(e, false));
+      window.addEventListener('pointercancel', (e) => endPointer(e, true));
 
       function setFields(title, badgeText, badgeClass, fields, note) {
         document.getElementById('sel-title').textContent = title;
@@ -1273,10 +1430,12 @@
             `Frontage ${p.front.toFixed(1)}' (>= 23.0' min) · Zero South/SW exposure.`
           );
           if (panTo) {
+            const home = getHomeVB();
             vb.w = 240;
-            vb.h = vb.w * (HOME_VB.h / HOME_VB.w);
+            vb.h = vb.w * (home.h / home.w);
             vb.x = p.cx - vb.w * 0.5;
-            vb.y = p.cy - vb.h * 0.5;
+            vb.y = p.cy - vb.h * (window.innerWidth <= 720 ? 0.34 : 0.5);
+            userMovedView = true;
             applyViewBox();
           }
           return;
@@ -1406,7 +1565,7 @@
 
       document.getElementById('export-svg-btn').addEventListener('click', () => {
         const clone = svg.cloneNode(true);
-        clone.setAttribute('viewBox', `${HOME_VB.x} ${HOME_VB.y} ${HOME_VB.w} ${HOME_VB.h}`);
+        clone.setAttribute('viewBox', `${FULL_VB.x} ${FULL_VB.y} ${FULL_VB.w} ${FULL_VB.h}`);
         const blob = new Blob([new XMLSerializer().serializeToString(clone)], { type: 'image/svg+xml;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

@@ -27,13 +27,24 @@
     {
       id: '3',
       sheetCode: 'SHEET 03',
-      title: 'Sheet 03 · Central Boulevard Twin-Oasis Plan (2D)',
-      shortMeta: '177 Plots · 14.80% Park · Central 12m Spine · 0 Slant',
-      description: '2D layout inside locked 52.00 Bigha boundary: 12m Karodi Gate (96–135.4 ft) steps onto a Central 12m Spine flanked by PK-02A/B Twin-Oasis Gardens (6.45%) + PK-01 East Slant Cutoff (8.35%), 177 plots @ 123–150 Gaj (min 23.3\' front, 0 SW).',
-      stageLabel: 'SHEET 03 · /colony-2/3/ (Central 12m Spine + Twin Oasis · 177 Plots · 2D)',
+      title: 'Sheet 03 · Central Spine & Spaced Parks Plan (2D)',
+      shortMeta: '179 Plots · 14.55% Park · 24.70% Road · Parks Apart',
+      description: '2D layout inside locked 52.00 Bigha boundary: PK-02 NW Corner Park (5.23%) & PK-03 South-Central Garden (3.94%) spaced 539 ft apart + PK-01 East Slant Cutoff (5.38%), 60.74% plotted across 179 plots @ 123–149 Gaj (min 23.5\' front, 0 SW).',
+      stageLabel: 'SHEET 03 · /colony-2/3/ (Central 12m Spine · Spaced NW & SE Parks · 179 Plots · 2D)',
       status: '2D Live',
       statusKind: 'locked',
       src: './3/'
+    },
+    {
+      id: '4',
+      sheetCode: 'SHEET 04',
+      title: 'Sheet 04 · 12m Grand E–W Promenade Plan (2D)',
+      shortMeta: '182 Plots · 61.43% Plotted · 13.80% Park · Opposite Parks',
+      description: 'Distinct East–West 12m Grand Promenade axis fed by 12m Karodi Gate (78–117.4 ft), paired with PK-03 SW Gate Welcome Park (5.86%) & PK-02 North Botanical Park (2.91%) 492 ft apart + PK-01 East Slant Cutoff (5.03%): highest yield 182 plots @ 139–149 Gaj (min 23.2\' front, 0 SW).',
+      stageLabel: 'SHEET 04 · /colony-2/4/ (12m Grand E–W Promenade · NE & SW Opposite Parks · 182 Plots · 2D)',
+      status: '2D Live',
+      statusKind: 'locked',
+      src: './4/'
     }
   ];
 

@@ -67,6 +67,17 @@
       status: '2D Live',
       statusKind: 'locked',
       src: './6/'
+    },
+    {
+      id: '7',
+      sheetCode: 'SHEET 07',
+      title: 'Sheet 07 · ~120 Gaj Buyer-Sized Plan (2D)',
+      shortMeta: '207 Plots · Avg 120.5 Gaj · 14.01% Park · Min 24.2\' Front',
+      description: 'Compact ~120 Gaj buyer-friendly grid (100% in 117–125 Gaj, avg 120.5 Gaj, min 24.2\' front, 0 SW): 12m Western Grand Ave from Karodi Gate (109.5–148.9 ft) with 9m Streets 1–6, PK-02 NW (5.01%) & PK-03 SE (4.71%) 716 ft apart + PK-01 East Cut (4.29%).',
+      stageLabel: 'SHEET 07 · /colony-2/7/ (207 Plots · Avg 120.5 Gaj · 14.01% Park · 2D)',
+      status: '2D Live',
+      statusKind: 'locked',
+      src: './7/'
     }
   ];
 

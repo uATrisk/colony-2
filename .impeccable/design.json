@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T17:04:44Z",
+  "title": "Design System: Colony 2 Site Plans",
+  "extensions": {
+    "colorMeta": {
+      "vermilion-survey": {
+        "role": "primary",
+        "displayName": "Survey Vermilion",
+        "canonical": "#b83721",
+        "tonalRamp": ["#210000", "#4a0400", "#7e1000", "#af2e18", "#d9563f", "#ff8068", "#ffbaac", "#ffe9e4"]
+      },
+      "vermilion-ink": {
+        "role": "primary",
+        "displayName": "Deep Vermilion Ink",
+        "canonical": "#8f2514",
+        "tonalRamp": ["#210000", "#4a0300", "#7d1100", "#a53b29", "#ce604c", "#f88570", "#ffbaac", "#ffe9e4"]
+      },
+      "vermilion-soft": {
+        "role": "primary",
+        "displayName": "Warm Vermilion Wash",
+        "canonical": "#fcf1ee",
+        "tonalRamp": ["#100908", "#2a2220", "#49403e", "#6a615e", "#8d8481", "#b2a8a5", "#d6cbc8", "#f7ece9"]
+      },
+      "verified-green": {
+        "role": "secondary",
+        "displayName": "Verified Boundary Green",
+        "canonical": "#146c34",
+        "tonalRamp": ["#001002", "#002d0f", "#005122", "#21753d", "#4a9a5f", "#70c083", "#93e4a5", "#c7ffd2"]
+      },
+      "verified-forest": {
+        "role": "secondary",
+        "displayName": "Verified Canopy Forest",
+        "canonical": "#185c37",
+        "tonalRamp": ["#001004", "#002d15", "#05502c", "#32724c", "#56976e", "#7bbc92", "#9de0b4", "#c5ffd8"]
+      },
+      "verified-border": {
+        "role": "secondary",
+        "displayName": "Verified Emerald Border",
+        "canonical": "#2d7a4f",
+        "tonalRamp": ["#001004", "#002d16", "#00502c", "#267449", "#4d986b", "#73be8f", "#96e2b1", "#c4ffd8"]
+      },
+      "verified-mint-ink": {
+        "role": "secondary",
+        "displayName": "Verified Mint Ink",
+        "canonical": "#ecfdf5",
+        "tonalRamp": ["#040e09", "#1a2722", "#384640", "#596760", "#7b8a83", "#9fafa8", "#c2d2cb", "#e2f3eb"]
+      },
+      "focus-amber": {
+        "role": "tertiary",
+        "displayName": "Focus Survey Amber",
+        "canonical": "#f2b463",
+        "tonalRamp": ["#150800", "#351e00", "#5d3a00", "#885700", "#b37820", "#da9d4c", "#ffc070", "#ffebd3"]
+      },
+      "forest-slate": {
+        "role": "neutral",
+        "displayName": "Deep Forest-Slate",
+        "canonical": "#13221d",
+        "tonalRamp": ["#020e0a", "#192823", "#364641", "#576861", "#798b84", "#9db0a9", "#c0d3cc", "#e0f4ec"]
+      },
+      "control-slate": {
+        "role": "neutral",
+        "displayName": "Control Slate",
+        "canonical": "#1c312a",
+        "tonalRamp": ["#000f09", "#142922", "#324840", "#526961", "#758c84", "#99b1a8", "#bbd5cb", "#dcf5ec"]
+      },
+      "control-active": {
+        "role": "neutral",
+        "displayName": "Active Control Slate",
+        "canonical": "#213a31",
+        "tonalRamp": ["#001009", "#112a21", "#2f493f", "#506a60", "#728d83", "#96b2a7", "#b8d6ca", "#d9f7ea"]
+      },
+      "control-hover": {
+        "role": "neutral",
+        "displayName": "Hover Control Slate",
+        "canonical": "#243e35",
+        "tonalRamp": ["#001009", "#102a21", "#2e493f", "#4f6a60", "#718e83", "#95b3a7", "#b8d6ca", "#d8f7eb"]
+      },
+      "header-border": {
+        "role": "neutral",
+        "displayName": "Header Rule Slate",
+        "canonical": "#355348",
+        "tonalRamp": ["#001009", "#0c2a21", "#2c493f", "#4c6b5f", "#6f8e82", "#93b3a7", "#b5d7c9", "#d5f8ea"]
+      },
+      "pine-secondary": {
+        "role": "neutral",
+        "displayName": "Muted Pine Ink",
+        "canonical": "#384a42",
+        "tonalRamp": ["#020f09", "#172821", "#35473f", "#556860", "#788c82", "#9cb0a7", "#bed4ca", "#dff5ea"]
+      },
+      "control-border-hover": {
+        "role": "neutral",
+        "displayName": "Control Hover Border",
+        "canonical": "#547b6c",
+        "tonalRamp": ["#001008", "#032c20", "#254b3e", "#466d5e", "#699081", "#8db5a5", "#afd9c8", "#cffae8"]
+      },
+      "road-sage": {
+        "role": "neutral",
+        "displayName": "Road Sage",
+        "canonical": "#7f9187",
+        "tonalRamp": ["#030e08", "#192820", "#37473e", "#57685f", "#798b81", "#9db0a6", "#c0d3c8", "#e0f4e9"]
+      },
+      "scrollbar-sage": {
+        "role": "neutral",
+        "displayName": "Scrollbar Sage",
+        "canonical": "#96a69d",
+        "tonalRamp": ["#040e08", "#1a2721", "#38463f", "#59675f", "#7b8b82", "#9fafa6", "#c2d3c9", "#e2f3ea"]
+      },
+      "mist-header-muted": {
+        "role": "neutral",
+        "displayName": "Mist Header Muted",
+        "canonical": "#b6c8bf",
+        "tonalRamp": ["#030e09", "#192821", "#37463f", "#576860", "#7a8b82", "#9eb0a7", "#c1d3ca", "#e1f4ea"]
+      },
+      "hairline-sage": {
+        "role": "neutral",
+        "displayName": "Hairline Sage",
+        "canonical": "#c7d1cb",
+        "tonalRamp": ["#070d09", "#1f2622", "#3c4540", "#5d6660", "#808983", "#a4aea8", "#c7d1cb", "#e7f1eb"]
+      },
+      "mineral-rag": {
+        "role": "neutral",
+        "displayName": "Mineral Sage-Stone Rag",
+        "canonical": "#dfe6e1",
+        "tonalRamp": ["#080c09", "#202622", "#3e4440", "#5f6561", "#828883", "#a6ada8", "#c9d0cb", "#e9f1eb"]
+      },
+      "ledger-hover": {
+        "role": "neutral",
+        "displayName": "Ledger Hover Tint",
+        "canonical": "#e7ede9",
+        "tonalRamp": ["#080c0a", "#212522", "#3f4441", "#606561", "#828884", "#a7aca9", "#cacfcb", "#eaf0ec"]
+      },
+      "chalk-header-ink": {
+        "role": "neutral",
+        "displayName": "Chalk-Sage Header Ink",
+        "canonical": "#f2f5f3",
+        "tonalRamp": ["#0a0c0a", "#222523", "#414341", "#616462", "#848785", "#a9acaa", "#cccecd", "#ecefed"]
+      },
+      "mineral-ledger": {
+        "role": "neutral",
+        "displayName": "Mineral Chalk Ledger",
+        "canonical": "#f3f6f4",
+        "tonalRamp": ["#0a0c0a", "#222523", "#414341", "#616462", "#848785", "#a9acaa", "#cccecd", "#ecefed"]
+      },
+      "exhibition-white": {
+        "role": "neutral",
+        "displayName": "Exhibition Rag White",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#0b0b0b", "#242424", "#424242", "#636363", "#868686", "#ababab", "#cecece", "#eeeeee"]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Top presentation bar project title (18px desktop, 16px mobile); reserved sheet footer heading steps to 20px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Boundary Ledger uppercase heading (15px), dropdown option titles (14px), and active sheet selector label (13px)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base UI prose and reserved sheet guidance copy (14px, 66ch max measure), plus 13px ledger rows and 12px option descriptions."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Tabular JetBrains Mono survey figures, header actions, subbar metadata, section captions, and access notices (12px; 11px for status tags)."
+      }
+    },
+    "shadows": [
+      {
+        "name": "dropdown-elevation",
+        "value": "0 14px 32px -8px rgba(19, 34, 29, 0.28)",
+        "purpose": "Floating open sheet selector listbox over the stage viewport."
+      },
+      {
+        "name": "toast-elevation",
+        "value": "0 10px 24px rgba(19, 34, 29, 0.28)",
+        "purpose": "Fixed bottom-right share-link confirmation toast."
+      },
+      {
+        "name": "drawer-elevation",
+        "value": "-12px 0 32px rgba(19, 34, 29, 0.25)",
+        "purpose": "Mobile overlay Boundary Ledger drawer at viewports <= 960px."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-architectural",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Crisp exponential ease-out used for selector trigger hover and chevron rotation."
+      },
+      {
+        "name": "duration-micro",
+        "value": "120ms",
+        "purpose": "Fast background transitions on dropdown options and ledger boundary edge rows."
+      },
+      {
+        "name": "duration-interactive",
+        "value": "140ms",
+        "purpose": "SVG polygon edge stroke-width and opacity highlighting in the Perimeter Key."
+      },
+      {
+        "name": "duration-control",
+        "value": "150ms",
+        "purpose": "Header utility button hover fill and border response (160ms on selector trigger)."
+      },
+      {
+        "name": "duration-chevron",
+        "value": "180ms",
+        "purpose": "180deg dropdown chevron rotation paired with --ease-architectural."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Collapses transition and animation durations under prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-drawer",
+        "value": "960px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Plan Selector Trigger",
+      "kind": "button",
+      "refersTo": "selector-trigger",
+      "description": "Primary header dropdown button displaying the current sheet name, immutable/pending badge, and rotating square-cap chevron.",
+      "html": "<button type=\"button\" class=\"ds-selector-trigger\" aria-expanded=\"false\"><span class=\"ds-selector-main\"><span class=\"ds-selector-prefix\">Select Plan</span><span class=\"ds-selector-current\">Sheet 01 · Outer Boundary Verification</span></span><span class=\"ds-selector-right\"><span class=\"ds-status-tag ds-status-tag--locked\">Immutable</span><svg class=\"ds-chevron-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"square\" aria-hidden=\"true\"><path d=\"M6 9l6 6 6-6\" /></svg></span></button>",
+      "css": ".ds-selector-trigger { width: 100%; max-width: 500px; min-height: 44px; padding: 8px 12px; background-color: var(--bg-header-control, #1c312a); border: 1px solid var(--border-header, #355348); border-radius: var(--radius-sharp, 2px); color: var(--ink-header, #f2f5f3); font-family: 'Archivo', system-ui, -apple-system, sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; text-align: left; transition: background-color 160ms var(--ease-architectural, cubic-bezier(0.16, 1, 0.3, 1)), border-color 160ms var(--ease-architectural, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-selector-trigger:hover { background-color: var(--bg-header-hover, #243e35); border-color: #547b6c; } .ds-selector-trigger:focus-visible { outline: 2px solid var(--focus-dark, #f2b463); outline-offset: 2px; } .ds-selector-main { display: flex; align-items: center; gap: 10px; min-width: 0; } .ds-selector-prefix { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 12px; font-weight: 600; color: var(--ink-header-muted, #b6c8bf); text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; } .ds-selector-current { font-size: 13px; font-weight: 600; color: var(--ink-header, #f2f5f3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-selector-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; } .ds-status-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 8px; border-radius: var(--radius-sharp, 2px); } .ds-status-tag--locked { background-color: var(--accent-verified-bg, #185c37); color: var(--accent-verified-ink, #ecfdf5); border: 1px solid #2d7a4f; } .ds-chevron-icon { width: 16px; height: 16px; color: var(--ink-header-muted, #b6c8bf); transition: transform 180ms var(--ease-architectural, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-selector-trigger[aria-expanded=\"true\"] .ds-chevron-icon { transform: rotate(180deg); }"
+    },
+    {
+      "name": "Dropdown Sheet Option",
+      "kind": "custom",
+      "refersTo": "dropdown-option",
+      "description": "Floating white dropdown listbox housing active and pending architectural sheets with inline status tags.",
+      "html": "<ul class=\"ds-dropdown-panel\" role=\"listbox\"><li role=\"presentation\"><button type=\"button\" class=\"ds-dropdown-option is-active\" role=\"option\" aria-selected=\"true\"><span><span class=\"ds-opt-title\">Sheet 01 · Outer Boundary Verification</span><span class=\"ds-opt-desc\">52.00 Bigha · 42,466 Gaj · 35,507 Sq.m — Confirmed outer survey perimeter with Karodi Road frontage and Chakroad closed wall.</span></span><span class=\"ds-opt-badge ds-opt-badge--locked\">Immutable</span></button></li><li role=\"presentation\"><button type=\"button\" class=\"ds-dropdown-option\" role=\"option\" aria-selected=\"false\"><span><span class=\"ds-opt-title\">Sheet 02 · 2D Plot Subdivision Layout</span><span class=\"ds-opt-desc\">32.95 Bigha Net Plotted (63.37%) — Upcoming 2D internal road &amp; plot layout engineered inside the locked 52.00 Bigha boundary.</span></span><span class=\"ds-opt-badge ds-opt-badge--pending\">Next Step</span></button></li></ul>",
+      "css": ".ds-dropdown-panel { max-width: 500px; background-color: var(--bg-sheet, #ffffff); color: var(--ink-primary, #13221d); border: 1px solid var(--border-ink, #13221d); border-radius: var(--radius-sharp, 2px); box-shadow: 0 14px 32px -8px rgba(19, 34, 29, 0.28); list-style: none; margin: 0; padding: 6px; font-family: 'Archivo', system-ui, -apple-system, sans-serif; } .ds-dropdown-option { width: 100%; border: 1px solid transparent; background: transparent; color: var(--ink-primary, #13221d); padding: 11px 12px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; text-align: left; cursor: pointer; border-radius: var(--radius-sharp, 2px); transition: background-color 120ms ease; } .ds-dropdown-option:hover { background-color: var(--bg-rag, #dfe6e1); } .ds-dropdown-option.is-active { background-color: var(--bg-ledger, #f3f6f4); border-color: var(--border-ink, #13221d); } .ds-dropdown-option:focus-visible { outline: 2px solid var(--focus-dark, #f2b463); outline-offset: 2px; } .ds-opt-title { display: block; font-size: 14px; font-weight: 700; color: var(--ink-primary, #13221d); } .ds-opt-desc { display: block; margin-top: 3px; font-size: 12px; color: var(--ink-secondary, #384a42); line-height: 1.4; } .ds-opt-badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: var(--radius-sharp, 2px); flex-shrink: 0; margin-top: 2px; } .ds-opt-badge--locked { background-color: #e6f4ec; color: var(--accent-verified, #146c34); border: 1px solid #96cca9; } .ds-opt-badge--pending { background-color: var(--bg-rag, #dfe6e1); color: var(--ink-secondary, #384a42); border: 1px solid var(--border-hairline, #c7d1cb); }"
+    },
+    {
+      "name": "Header Utility Button",
+      "kind": "button",
+      "refersTo": "header-btn",
+      "description": "Compact 40px dark forest-slate header action supporting hover, active toggle, and verified copy-confirmation states.",
+      "html": "<div class=\"ds-header-actions\"><button type=\"button\" class=\"ds-header-btn is-active\" aria-pressed=\"true\"><svg class=\"ds-btn-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"square\" aria-hidden=\"true\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" /><line x1=\"15\" y1=\"3\" x2=\"15\" y2=\"21\" /></svg><span>Ledger</span></button><button type=\"button\" class=\"ds-header-btn is-copied\"><svg class=\"ds-btn-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"square\" aria-hidden=\"true\"><path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\" /><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\" /></svg><span>Link Copied</span></button></div>",
+      "css": ".ds-header-actions { display: inline-flex; align-items: center; gap: 8px; background-color: var(--bg-header, #13221d); padding: 8px; } .ds-header-btn { min-height: 40px; padding: 0 12px; background-color: var(--bg-header-control, #1c312a); border: 1px solid var(--border-header, #355348); border-radius: var(--radius-sharp, 2px); color: var(--ink-header, #f2f5f3); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; white-space: nowrap; transition: background-color 150ms ease, border-color 150ms ease; } .ds-header-btn:hover { background-color: var(--bg-header-hover, #243e35); border-color: #547b6c; } .ds-header-btn:focus-visible { outline: 2px solid var(--focus-dark, #f2b463); outline-offset: 2px; } .ds-header-btn.is-active { background-color: #213a31; border-color: #719989; } .ds-header-btn.is-copied { background-color: var(--accent-verified-bg, #185c37); border-color: #2d7a4f; color: var(--accent-verified-ink, #ecfdf5); } .ds-btn-icon { width: 15px; height: 15px; flex-shrink: 0; }"
+    },
+    {
+      "name": "Primary Stage Action Button",
+      "kind": "button",
+      "refersTo": "stage-action-btn",
+      "description": "High-contrast solid forest-slate button on light exhibition sheets to return from reserved drafts to Sheet 01.",
+      "html": "<button type=\"button\" class=\"ds-stage-action-btn\">View Outer Boundary (Sheet 01)</button>",
+      "css": ".ds-stage-action-btn { min-height: 44px; padding: 0 16px; background-color: var(--ink-primary, #13221d); color: var(--bg-sheet, #ffffff); border: 1px solid var(--ink-primary, #13221d); border-radius: var(--radius-sharp, 2px); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; } .ds-stage-action-btn:hover { background-color: #213a31; } .ds-stage-action-btn:focus-visible { outline: 2px solid var(--focus-light, #b83721); outline-offset: 2px; }"
+    },
+    {
+      "name": "Verification Status Tag",
+      "kind": "chip",
+      "refersTo": "status-tag-locked",
+      "description": "Compact 11px uppercase monospace chip differentiating the locked Sheet 01 boundary from upcoming drafting sheets.",
+      "html": "<div class=\"ds-tag-row\"><span class=\"ds-tag ds-tag--locked\">Immutable</span><span class=\"ds-tag ds-tag--pending\">Next Step</span></div>",
+      "css": ".ds-tag-row { display: inline-flex; gap: 8px; background-color: var(--bg-header, #13221d); padding: 8px; } .ds-tag { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 8px; border-radius: var(--radius-sharp, 2px); } .ds-tag--locked { background-color: var(--accent-verified-bg, #185c37); color: var(--accent-verified-ink, #ecfdf5); border: 1px solid #2d7a4f; } .ds-tag--pending { background-color: #2b4238; color: #e4ede8; border: 1px solid #4c695d; }"
+    },
+    {
+      "name": "Top Presentation Bar",
+      "kind": "nav",
+      "refersTo": "site-header",
+      "description": "Full-width deep forest-slate header combining the C2 vermilion-ruled mark, site title, area figures, and action cluster.",
+      "html": "<header class=\"ds-site-header\"><div class=\"ds-brand-group\"><div class=\"ds-brand-mark\" aria-hidden=\"true\">C2</div><div><h1 class=\"ds-brand-title\">Colony 2 Site Plans</h1><p class=\"ds-brand-meta\">52.00 Bigha · 42,466 Gaj · 35,507 Sq.m</p></div></div><div class=\"ds-header-links\"><a class=\"ds-header-link\" href=\"#standalone\"><svg class=\"ds-btn-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"square\" aria-hidden=\"true\"><path d=\"M14 3h7v7\" /><path d=\"M10 14L21 3\" /><path d=\"M21 14v7H3V3h7\" /></svg><span>Full Sheet</span></a></div></header>",
+      "css": ".ds-site-header { background-color: var(--bg-header, #13221d); color: var(--ink-header, #f2f5f3); border-bottom: 1px solid var(--border-header, #355348); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: 'Archivo', system-ui, -apple-system, sans-serif; } .ds-brand-group { display: flex; align-items: center; gap: 12px; } .ds-brand-mark { width: 36px; height: 36px; border: 1px solid var(--accent-vermilion, #b83721); background-color: var(--bg-header-control, #1c312a); color: var(--ink-header, #f2f5f3); display: grid; place-items: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; border-radius: var(--radius-sharp, 2px); flex-shrink: 0; } .ds-brand-title { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.01em; line-height: 1.2; } .ds-brand-meta { margin: 2px 0 0; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: var(--ink-header-muted, #b6c8bf); line-height: 1.3; } .ds-header-link { min-height: 40px; padding: 0 12px; background-color: var(--bg-header-control, #1c312a); border: 1px solid var(--border-header, #355348); border-radius: var(--radius-sharp, 2px); color: var(--ink-header, #f2f5f3); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; transition: background-color 150ms ease, border-color 150ms ease; } .ds-header-link:hover { background-color: var(--bg-header-hover, #243e35); border-color: #547b6c; } .ds-header-link:focus-visible { outline: 2px solid var(--focus-dark, #f2b463); outline-offset: 2px; } .ds-btn-icon { width: 15px; height: 15px; flex-shrink: 0; }"
+    },
+    {
+      "name": "Exhibition Stage Frame",
+      "kind": "card",
+      "refersTo": "stage-frame",
+      "description": "Sharp 1px-ruled white exhibition mat framing the provenance subbar and active viewport over the mineral rag ground.",
+      "html": "<section class=\"ds-stage\"><div class=\"ds-stage-subbar\"><span class=\"ds-subbar-left\"><span class=\"ds-lock-dot\" aria-hidden=\"true\"></span><span>Sheet 01 · plans/outer-boundary.html (Read-only verified sheet)</span></span><span>Karodi Road Entrance · Chakroad Closed Wall</span></div><div class=\"ds-stage-viewport\">Active Plan Viewport (52.00 Bigha / 42,466 Gaj)</div></section>",
+      "css": ".ds-stage { background-color: var(--bg-sheet, #ffffff); border: 1px solid var(--border-ink, #13221d); border-radius: var(--radius-sharp, 2px); padding: 10px; display: flex; flex-direction: column; gap: 8px; color: var(--ink-primary, #13221d); font-family: 'Archivo', system-ui, -apple-system, sans-serif; } .ds-stage-subbar { padding: 8px 12px; background-color: var(--bg-ledger, #f3f6f4); border: 1px solid var(--border-hairline, #c7d1cb); border-radius: var(--radius-sharp, 2px); display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 12px; color: var(--ink-secondary, #384a42); } .ds-subbar-left { display: flex; align-items: center; gap: 8px; min-width: 0; } .ds-lock-dot { width: 8px; height: 8px; background-color: var(--accent-verified, #146c34); border-radius: 50%; flex-shrink: 0; } .ds-stage-viewport { min-height: 96px; display: grid; place-items: center; background-color: var(--bg-sheet, #ffffff); border: 1px solid var(--border-hairline, #c7d1cb); border-radius: var(--radius-sharp, 2px); font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-secondary, #384a42); }"
+    },
+    {
+      "name": "Boundary & Area Ledger",
+      "kind": "custom",
+      "refersTo": "boundary-ledger",
+      "description": "328px mineral-chalk specification panel combining edge rows, proportional land-split meter, and Chakroad access notice.",
+      "html": "<aside class=\"ds-ledger\"><div class=\"ds-ledger-head\"><h2 class=\"ds-ledger-title\">Boundary Ledger</h2></div><div class=\"ds-ledger-body\"><div class=\"ds-ledger-list\"><button type=\"button\" class=\"ds-ledger-row-btn\"><span class=\"ds-edge-wrap\"><span class=\"ds-swatch ds-swatch--front\"></span>Karodi Rd (Front)</span><strong class=\"ds-mono-val\">643'-0½\" · 196.00 m</strong></button><button type=\"button\" class=\"ds-ledger-row-btn is-highlighted\"><span class=\"ds-edge-wrap\"><span class=\"ds-swatch ds-swatch--wall\"></span>Right (Chakroad)</span><strong class=\"ds-mono-val\">721'-9½\" · 220.00 m</strong></button></div><div class=\"ds-meter-bar\" aria-label=\"Area allocation: 63.37% plotted, 21.63% road, 15.00% green\"><div class=\"ds-seg--plot\"></div><div class=\"ds-seg--road\"></div><div class=\"ds-seg--green\"></div></div><div class=\"ds-wall-notice\"><strong>Access Rule:</strong> Main entrance is strictly along Karodi Road (196.00 m). Chakroad boundary (220.00 m) is a closed wall with no entrance.</div></div></aside>",
+      "css": ".ds-ledger { width: 328px; background-color: var(--bg-ledger, #f3f6f4); border: 1px solid var(--border-ink, #13221d); border-radius: var(--radius-sharp, 2px); color: var(--ink-primary, #13221d); font-family: 'Archivo', system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; } .ds-ledger-head { padding: 14px 16px; border-bottom: 1px solid var(--border-ink, #13221d); background-color: #e6ece8; } .ds-ledger-title { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; } .ds-ledger-body { padding: 14px 15px 16px; display: flex; flex-direction: column; gap: 16px; } .ds-ledger-list { border-top: 1px solid var(--border-hairline, #c7d1cb); } .ds-ledger-row-btn { width: 100%; min-height: 40px; background: transparent; border: 0; border-bottom: 1px solid var(--border-hairline, #c7d1cb); padding: 8px 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; font-family: inherit; font-size: 13px; color: var(--ink-primary, #13221d); cursor: pointer; transition: background-color 120ms ease; } .ds-ledger-row-btn:hover, .ds-ledger-row-btn.is-highlighted { background-color: var(--bg-ledger-hover, #e7ede9); } .ds-ledger-row-btn:focus-visible { outline: 2px solid var(--focus-light, #b83721); outline-offset: 2px; } .ds-edge-wrap { display: flex; align-items: center; gap: 7px; white-space: nowrap; } .ds-mono-val { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 12px; letter-spacing: -0.02em; white-space: nowrap; } .ds-swatch { width: 9px; height: 9px; border-radius: 1px; flex-shrink: 0; } .ds-swatch--front { background-color: var(--accent-verified, #146c34); } .ds-swatch--wall { background-color: var(--accent-vermilion, #b83721); } .ds-meter-bar { display: flex; height: 11px; border: 1px solid var(--border-ink, #13221d); border-radius: var(--radius-sharp, 2px); overflow: hidden; background-color: var(--bg-sheet, #ffffff); } .ds-seg--plot { width: 63.37%; background-color: var(--ink-primary, #13221d); } .ds-seg--road { width: 21.63%; background-color: var(--accent-road, #7f9187); } .ds-seg--green { width: 15.00%; background-color: var(--accent-verified, #146c34); } .ds-wall-notice { border: 1px solid var(--accent-vermilion, #b83721); background-color: var(--accent-vermilion-soft, #fcf1ee); color: var(--accent-vermilion-ink, #8f2514); padding: 12px; border-radius: var(--radius-sharp, 2px); font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 12px; line-height: 1.45; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Museum Rag Jury Board",
+    "overview": "Colony 2 Site Plans is an Operate-mode architectural exhibition shell built to hold a single permanent web link while letting viewers inspect the locked 52.00 Bigha survey perimeter alongside upcoming 2D plot layouts and 3D colony models. The entire viewport behaves like a mounted jury presentation board: a dark forest-slate control bar anchors the top edge, while a crisp white exhibition mat and a mineral-chalk specification ledger rest over a subtly textured sage-stone rag ground.\n\nBecause the architectural plan inside the stage carries all visual drama, the chrome stays disciplined, low-gloss, and instrument-grade. Every edge is ruled with 1px hairlines, every survey measurement is set in tabular monospace figures, and chromatic accents are rationed strictly for physical site constraints—vermilion for the closed Chakroad wall and emerald green for the Karodi Road main entrance and verified boundary lock.",
+    "keyCharacteristics": [
+      "Mineral sage-stone rag ground (`#dfe6e1`) overlaid with a 3.5% SVG fractal-noise paper grain, framing an exhibition-white drawing mat (`#ffffff`).",
+      "Deep architectural forest-slate top control bar (`#13221d`) housing the brand monogram, sheet selector dropdown, ledger toggle, standalone link, and permanent-URL copy button.",
+      "Sharp `2px` architectural corners (`--radius-sharp`) and `1px` structural hairlines rather than soft rounded cards or decorative gradients.",
+      "Dual-voice typography pairing `Archivo` structural titles with tabular `JetBrains Mono` survey measurements and control labels.",
+      "Signal-only color coding linking the interactive perimeter key, edge table, proportional `63.37% / 21.63% / 15.00%` allocation bar, and access-rule notice."
+    ],
+    "rules": [
+      {
+        "name": "The Signal-Only Accent Rule",
+        "body": "Survey Vermilion (`#b83721`) and Verified Boundary Green (`#146c34`) carry strict cartographic meaning—closed wall versus verified open entrance—and must never be applied as generic brand decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Polarity-Matched Focus Rule",
+        "body": "Keyboard `:focus-visible` rings switch polarity by surface: `2px` Focus Survey Amber (`#f2b463`) with `2px` offset on dark `#13221d`/`#1c312a` header controls, and `2px` Survey Vermilion (`#b83721`) on light `#f3f6f4`/`#ffffff` stage and ledger controls.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Survey Figures Rule",
+        "body": "Every spatial measurement, percentage, and coordinate string uses `JetBrains Mono` with `font-variant-numeric: tabular-nums` so multi-unit comparisons align cleanly across rows.",
+        "section": "typography"
+      },
+      {
+        "name": "The Exhibition-First Viewport Rule",
+        "body": "The active plan stage always claims `flex: 1` of the remaining `100dvh` height and collapses the `328px` ledger out of flow (`display: none`) on toggle rather than compressing the plan viewport with multi-column chrome.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Docked containers—the stage mat, ledger panel, perimeter key box, and drafting sheet—carry zero box-shadow at rest; forest-tinted shadows belong exclusively to floating overlays.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Razor Corner Rule",
+        "body": "Structural containers and interactive buttons never exceed `2px` corner radius (`--radius-sharp: 2px`); pill shapes and rounded cards are excluded outside the `8px` status dot.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do preserve `1px solid` architectural hairlines (`#13221d` outer frames, `#c7d1cb` inner rules) and `2px` sharp corners (`--radius-sharp: 2px`) across new sheets and controls.",
+      "Do keep `JetBrains Mono` with `tabular-nums` on every measurement, Bigha/Gaj/Sq.m figure, coordinate, percentage, and action button label.",
+      "Do apply `#b83721` (Survey Vermilion) strictly to closed-wall warnings, pending dots, light focus rings, and the `C2` monogram border, and `#146c34` / `#185c37` strictly to verified Karodi Road entrance and locked states.",
+      "Do maintain polarity-aware `:focus-visible` outlines (`#f2b463` on dark forest-slate controls, `#b83721` on light rag/white surfaces) and `44px` minimum mobile touch targets.",
+      "Do respect `@media (prefers-reduced-motion: reduce)` (`0.01ms` duration collapse) and leave `plans/outer-boundary.html` completely unmodified inside its stage iframe."
+    ],
+    "donts": [
+      "Don't introduce raw un-tinted black (`#000000`), neutral gray (`#888888`), or decorative gradients that break the green-tinted forest-slate and mineral-rag palette.",
+      "Don't replace crisp `2px` architectural mats and ruled ledgers with pill buttons, multi-pixel left/right accent stripes, floating card grids, or decorative glassmorphism.",
+      "Don't add eyebrow/kicker labels above headings, Unicode emojis/glyphs in place of square-cap SVG icons, or unverified marketing copy, pricing, or fabricated plot claims.",
+      "Don't apply box-shadows to docked panels (the stage mat, desktop ledger, perimeter key box, and drafting sheet); shadows belong strictly to floating overlays (the dropdown menu, share toast, and mobile drawer)."
+    ]
+  }
+}

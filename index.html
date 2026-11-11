@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colony 2 — 2D Plot & 3D Site Plans (52.00 Bigha)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- Top Control Bar -->
+    <header class="site-header">
+      <div class="brand-group">
+        <div class="brand-mark" aria-hidden="true">C2</div>
+        <div class="brand-text">
+          <h1 class="brand-title">Colony 2 Site Plans</h1>
+          <p class="brand-meta mono">52.00 Bigha · 42,466 Gaj · 35,507 Sq.m</p>
+        </div>
+      </div>
+
+      <!-- Plan Selector Dropdown -->
+      <div class="selector-wrap">
+        <button
+          id="plan-dropdown-btn"
+          type="button"
+          class="selector-trigger"
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          aria-controls="plan-listbox"
+        >
+          <span class="selector-trigger-main">
+            <span class="selector-prefix mono">Select Plan</span>
+            <span id="selector-current-title" class="selector-current">Sheet 01 · Outer Boundary Verification</span>
+          </span>
+          <span class="selector-right">
+            <span id="selector-current-badge" class="status-tag status-tag--locked">Immutable</span>
+            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </span>
+        </button>
+
+        <ul id="plan-listbox" class="dropdown-panel" role="listbox" aria-label="Available site plans"></ul>
+      </div>
+
+      <!-- Header Utility Actions -->
+      <div class="header-actions">
+        <button
+          id="ledger-toggle-btn"
+          type="button"
+          class="header-btn is-active"
+          aria-expanded="true"
+          aria-controls="boundary-ledger"
+          title="Toggle Boundary & Area Ledger"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" />
+            <line x1="15" y1="3" x2="15" y2="21" />
+          </svg>
+          <span class="btn-label-always">Ledger</span>
+        </button>
+
+        <a
+          id="open-standalone-link"
+          class="header-link"
+          href="./plans/outer-boundary.html"
+          target="_blank"
+          rel="noopener"
+          title="Open exact boundary file in a new tab"
+          aria-label="Open full standalone sheet"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true">
+            <path d="M14 3h7v7" />
+            <path d="M10 14L21 3" />
+            <path d="M21 14v7H3V3h7" />
+          </svg>
+          <span class="btn-label-desktop">Full Sheet</span>
+        </a>
+
+        <button
+          id="copy-share-btn"
+          type="button"
+          class="header-btn"
+          title="Copy permanent share URL"
+          aria-label="Copy permanent share link"
+        >
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" aria-hidden="true">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+          <span id="copy-share-label" class="btn-label-desktop">Share Link</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Exhibition Workspace -->
+    <main id="workspace" class="workspace">
+
+      <!-- Active Plan Exhibition Frame -->
+      <section class="stage" aria-label="Selected site plan viewport">
+        <div class="stage-subbar mono">
+          <span class="stage-subbar-left">
+            <span id="stage-lock-dot" class="lock-dot" aria-hidden="true"></span>
+            <span id="stage-subbar-text">Sheet 01 · plans/outer-boundary.html (Read-only verified sheet)</span>
+          </span>
+          <span class="stage-subbar-right">Karodi Road Entrance · Chakroad Closed Wall</span>
+        </div>
+
+        <div class="stage-viewport">
+          <!-- Unmodified Exact Boundary Plan -->
+          <iframe
+            id="plan-frame"
+            class="plan-iframe"
+            src="./plans/outer-boundary.html"
+            title="Site Plan — Outer Boundary Verification (52.00 Bigha / 42,466 Gaj)"
+          ></iframe>
+
+          <!-- Pending 2D/3D Sheet Architectural Blueprint Slot -->
+          <div id="pending-view" class="pending-view" hidden>
+            <div class="pending-sheet">
+              <div class="pending-sheet-top mono">
+                <span id="pending-slot-code">SHEET 02 · RESERVED DRAFTING LAYER</span>
+                <span id="pending-badge" class="dropdown-opt-badge dropdown-opt-badge--pending">Next Step</span>
+              </div>
+
+              <div class="pending-wireframe-wrap">
+                <svg class="pending-wireframe-svg" viewBox="-120 -65 920 845" aria-label="Verified 52.00 Bigha outer boundary wireframe">
+                  <defs>
+                    <pattern id="pending-cad-grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(19, 34, 29, 0.08)" stroke-width="1" />
+                    </pattern>
+                  </defs>
+                  <rect x="-118" y="-63" width="916" height="841" fill="url(#pending-cad-grid)" stroke="#c7d1cb" stroke-width="1.5" />
+                  <polygon
+                    points="0,0 461.54,0 642.65,681.50 555.29,689.50 415.88,694.50 256.38,696.83 0,696.83"
+                    fill="rgba(223, 230, 225, 0.48)"
+                  />
+                  <!-- Internal Net Plotted Reservation Zone -->
+                  <polygon
+                    points="40,42 426,42 586,642 38,655"
+                    fill="none"
+                    stroke="#384a42"
+                    stroke-width="2.5"
+                    stroke-dasharray="12 8"
+                  />
+                  <!-- Verified Perimeter Edges -->
+                  <line x1="0" y1="0" x2="461.54" y2="0" stroke="#13221d" stroke-width="5" />
+                  <line x1="0" y1="696.83" x2="0" y2="0" stroke="#13221d" stroke-width="5" />
+                  <line x1="461.54" y1="0" x2="642.65" y2="681.50" stroke="#b83721" stroke-width="7" />
+                  <polyline points="642.65,681.50 555.29,689.50 415.88,694.50 256.38,696.83 0,696.83" fill="none" stroke="#146c34" stroke-width="7" stroke-linejoin="round" />
+
+                  <!-- Blueprint Edge Callouts -->
+                  <text x="230" y="-22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" font-weight="600" fill="#13221d">BACK: 461'-6½" (140.68 m)</text>
+                  <text transform="translate(-38, 350) rotate(-90)" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" font-weight="600" fill="#13221d">WEST: 696'-10" (212.40 m)</text>
+                  <text transform="translate(592, 335) rotate(75.1)" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="21" font-weight="700" fill="#b83721">CHAKROAD 220.00 m · CLOSED WALL</text>
+                  <text x="320" y="748" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" font-weight="700" fill="#146c34">KARODI ROAD FRONTAGE 196.00 m · MAIN ENTRANCE</text>
+
+                  <!-- Interior Label -->
+                  <text x="278" y="395" text-anchor="middle" font-family="Archivo, sans-serif" font-size="22" font-weight="700" letter-spacing="0.03em" fill="#13221d">RESERVED DESIGN ENVELOPE</text>
+                  <text x="278" y="432" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" font-weight="600" fill="#384a42">32.95 BIGHA NET PLOTTED (63.37%)</text>
+                  <text x="278" y="464" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="15" fill="#384a42">OUTER BOUNDARY LOCKED AT 52.00 BIGHA</text>
+                </svg>
+              </div>
+
+              <div class="pending-footer">
+                <div class="pending-footer-copy">
+                  <h2 id="pending-title" class="pending-title">Sheet 02 · 2D Plot Subdivision Layout</h2>
+                  <p id="pending-copy" class="pending-copy">
+                    Awaiting the 2D internal road &amp; plot layout inside this confirmed perimeter. Once added, this permanent link updates automatically.
+                  </p>
+                </div>
+                <button id="return-boundary-btn" type="button" class="stage-action-btn">
+                  View Outer Boundary (Sheet 01)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Collapsible Perimeter & Area Ledger -->
+      <div id="drawer-backdrop" class="drawer-backdrop" aria-hidden="true"></div>
+      <aside id="boundary-ledger" class="ledger" aria-label="Verified boundary specifications">
+        <div class="ledger-head">
+          <h2 class="ledger-title">Boundary Ledger</h2>
+          <button id="drawer-close-btn" type="button" class="drawer-close-btn" aria-label="Close boundary ledger">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="ledger-body">
+          <!-- Interactive Survey Polygon Key -->
+          <div class="key-map-box">
+            <div class="key-map-caption mono">
+              <span>PERIMETER KEY</span>
+              <span id="active-edge-readout">Select or hover an edge</span>
+            </div>
+            <svg class="key-map-svg" viewBox="-40 -30 740 760" aria-label="Interactive site perimeter diagram">
+              <polygon
+                points="0,0 461.54,0 642.65,681.50 555.29,689.50 415.88,694.50 256.38,696.83 0,696.83"
+                fill="#dfe6e1"
+              />
+              <line class="key-edge" data-edge="top" tabindex="0" role="button" aria-label="Top back boundary: 461 feet 6.5 inches" x1="0" y1="0" x2="461.54" y2="0" stroke="#13221d" stroke-width="12" stroke-linecap="square" />
+              <line class="key-edge" data-edge="right" tabindex="0" role="button" aria-label="Right Chakroad boundary: 220 meters closed wall" x1="461.54" y1="0" x2="642.65" y2="681.50" stroke="#b83721" stroke-width="14" stroke-linecap="square" />
+              <polyline class="key-edge" data-edge="bottom" tabindex="0" role="button" aria-label="Bottom Karodi Road main entrance: 196 meters" points="642.65,681.50 555.29,689.50 415.88,694.50 256.38,696.83 0,696.83" fill="none" stroke="#146c34" stroke-width="14" stroke-linejoin="round" />
+              <line class="key-edge" data-edge="left" tabindex="0" role="button" aria-label="Left west boundary: 696 feet 10 inches" x1="0" y1="696.83" x2="0" y2="0" stroke="#13221d" stroke-width="12" stroke-linecap="square" />
+              <text x="275" y="340" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="52" font-weight="700" fill="#13221d">52.00</text>
+              <text x="275" y="405" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="34" font-weight="600" fill="#384a42">BIGHA</text>
+            </svg>
+          </div>
+
+          <!-- Edge Measurements -->
+          <div>
+            <h3 class="ledger-section-title mono">Verified Boundary Edges</h3>
+            <div class="ledger-list">
+              <button type="button" class="ledger-row-btn" data-edge="top" aria-pressed="false">
+                <span class="edge-label-wrap"><span class="edge-swatch edge-swatch--default"></span>Top (Back)</span>
+                <strong class="mono">461'-6½" · 140.68 m</strong>
+              </button>
+              <button type="button" class="ledger-row-btn" data-edge="bottom" aria-pressed="false">
+                <span class="edge-label-wrap"><span class="edge-swatch edge-swatch--front"></span>Karodi Rd (Front)</span>
+                <strong class="mono">643'-0½" · 196.00 m</strong>
+              </button>
+              <button type="button" class="ledger-row-btn" data-edge="left" aria-pressed="false">
+                <span class="edge-label-wrap"><span class="edge-swatch edge-swatch--default"></span>Left (West)</span>
+                <strong class="mono">696'-10" · 212.40 m</strong>
+              </button>
+              <button type="button" class="ledger-row-btn" data-edge="right" aria-pressed="false">
+                <span class="edge-label-wrap"><span class="edge-swatch edge-swatch--wall"></span>Right (Chakroad)</span>
+                <strong class="mono">721'-9½" · 220.00 m</strong>
+              </button>
+            </div>
+          </div>
+
+          <!-- Land Area & Proportional Split -->
+          <div>
+            <h3 class="ledger-section-title mono">Land Area Calculation</h3>
+            <div class="ledger-list">
+              <div class="ledger-row"><span>Total Gaj</span><strong class="mono">42,466 Gaj</strong></div>
+              <div class="ledger-row"><span>Total Sq. Meters</span><strong class="mono">35,507 Sq.m</strong></div>
+              <div class="ledger-row"><span>Total Sq. Feet</span><strong class="mono">3,82,194 Sq.ft</strong></div>
+            </div>
+
+            <div class="meter-wrap">
+              <div class="meter-bar" role="img" aria-label="Area allocation: 63.37% plotted, 21.63% road, 15.00% green">
+                <div class="meter-seg--plot"></div>
+                <div class="meter-seg--road"></div>
+                <div class="meter-seg--green"></div>
+              </div>
+              <div class="meter-legend mono">
+                <div class="meter-legend-item">
+                  <span class="meter-legend-label"><span class="edge-swatch edge-swatch--default"></span>Plotted</span>
+                  <strong>32.95 B</strong>
+                  <span>63.37%</span>
+                </div>
+                <div class="meter-legend-item">
+                  <span class="meter-legend-label"><span class="edge-swatch edge-swatch--road"></span>Road</span>
+                  <strong>11.25 B</strong>
+                  <span>21.63%</span>
+                </div>
+                <div class="meter-legend-item">
+                  <span class="meter-legend-label"><span class="edge-swatch edge-swatch--front"></span>Green</span>
+                  <strong>7.80 B</strong>
+                  <span>15.00%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Permanent Access Constraint -->
+          <div class="wall-notice mono">
+            <strong>Access Rule:</strong> Main entrance is strictly along Karodi Road (196.00 m). Chakroad boundary (220.00 m) is a closed wall with no entrance.
+          </div>
+        </div>
+      </aside>
+
+      <!-- Live Feedback Notice (Clipboard / Share URL) -->
+      <div id="share-feedback" class="share-feedback mono" role="status" aria-live="polite" hidden></div>
+
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

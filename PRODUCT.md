@@ -24,16 +24,16 @@ A living spatial showcase at one permanent GitHub Pages address (`https://uATris
 
 ## Operating Context
 
-Two-stage build workflow: first establish the main website shell and 2D/3D design views on GitHub Pages, then embed or connect the owner's accurate colony boundary HTML file and iterate on the interior design without changing the shared link.
+Iterative 2D-first design workflow anchored on an unchanging perimeter: first establish the permanent website shell and immutable outer boundary (`plans/outer-boundary.html`), then generate distinct **2D colony map options** (`Design 01`, `Design 02`, ...) inside that exact boundary and append each one to the site dropdown. A **3D view** is built and added for a specific design **only when the owner likes that 2D option and explicitly requests 3D**.
 
 ## Capabilities and Constraints
 
-- Strictly scoped to **2D plot design and 3D colony design** — no unrelated sections (no pricing, amenities, contact forms, testimonials, or fabricated stats).
+- Strictly scoped to **site boundary verification, 2D colony map designs, and owner-approved 3D views** — no unrelated sections (no pricing, amenities, contact forms, testimonials, or fabricated stats).
 - **Immutable Outer Boundary:** [plans/outer-boundary.html](plans/outer-boundary.html) holds the exact confirmed outer site boundary (`52.00 Bigha` / `42,466 Gaj` / `35,507 Sq.m` / `3,82,194 Sq.ft`, Karodi Road Under Pass `196.00 m` main frontage entrance, Chakroad `220.00 m` closed wall no-entrance edge, `461'-6½"` top, `696'-10"` west edge). Never modify this boundary file or alter its dimensions/geometry under any scenario unless the owner explicitly instructs otherwise.
-- **Main Website Dropdown Selector:** The main website (`index.html`) must feature a clear dropdown selector so any viewer opening the permanent GitHub Pages link can switch between designs/views inside the site (starting with the untouched Outer Boundary plan, with structured slots for upcoming 2D plot layouts and 3D colony models).
-- Hosted via GitHub Pages (`https://uATrisk.github.io/colony-2/`) so the public URL remains permanent as internal designs evolve.
+- **Multi-Design 2D-First Dropdown Workflow:** The main website (`index.html`) uses one header dropdown holding the immutable Outer Boundary (`Sheet 01`) plus every generated map option (`Design 01`, `Design 02`, ...). Each generated design starts strictly as **2D only** using the confirmed boundary; a 3D counterpart is created and added to the dropdown **only after the owner likes that specific 2D design and explicitly asks for 3D**.
+- Hosted via GitHub Pages (`https://uATrisk.github.io/colony-2/`) so the public URL remains permanent as internal designs accumulate and evolve.
 - Keep all 7 existing local `.HEIC` files (`IMG_0126.HEIC`, `IMG_0129.HEIC`–`IMG_0134.HEIC`) strictly local and excluded from Git/publishing.
-- Explicitly undecided facts (never fabricate): official colony name (working title `colony-2`), city/state address beyond the Karodi Road / Chakroad boundary labels, and internal plot/road subdivision geometry (pending next steps).
+- Explicitly undecided facts (never fabricate): official colony name (working title `colony-2`), city/state address beyond the Karodi Road / Chakroad boundary labels, and internal plot/road subdivision geometry until designed and verified for each option.
 
 ## Brand Commitments
 

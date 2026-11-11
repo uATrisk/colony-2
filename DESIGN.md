@@ -243,7 +243,7 @@ Compact, rectilinear tactile triggers tuned to match dark header slate or light 
 - **Drawer Close & Edge Row Buttons:** Mobile close button is `40px × 40px` white with `1px solid #c7d1cb` border; boundary edge row buttons are full-width transparent triggers with `40px` min-height, `8px 6px` padding, bottom hairline `#c7d1cb`, and `#e7ede9` hover/pinned highlight.
 
 ### Plan Selector Dropdown
-Prominent header switcher enabling single-URL navigation across Sheet 01, Sheet 02, and Sheet 03 without modifying `plans/outer-boundary.html`.
+Prominent header switcher enabling single-URL navigation across Sheet 01 (`plans/outer-boundary.html`) and each appended 2D colony design option (plus 3D views only when approved) without modifying the locked boundary file.
 - **Dropdown Trigger:** `flex: 1 1 340px` (`max-width: 500px`, `min-width: 240px`; `100%` width on mobile), `44px` min-height, `8px 12px` padding, `#1c312a` fill, `1px solid #355348` border (`2px` radius), `160ms cubic-bezier(0.16, 1, 0.3, 1)` hover transition; chevron rotates `180deg` (`180ms`) when expanded.
 - **Menu Panel & Sheet Options:** White (`#ffffff`) floating menu `6px` below trigger with `1px solid #13221d` border, `6px` outer padding, `11px 12px` option padding, `#dfe6e1` hover background, and `#f3f6f4` fill + `#13221d` border on the active sheet.
 - **Status Badges:** `11px` bold uppercase `JetBrains Mono`, `3px 8px` padding (`3px 7px` mobile), `2px` radius. Locked variants use `#185c37`/`#2d7a4f`/`#ecfdf5` on dark triggers and `#e6f4ec`/`#96cca9`/`#146c34` inside the white dropdown; pending variants use `#2b4238`/`#4c695d`/`#e4ede8` on dark triggers and `#dfe6e1`/`#c7d1cb`/`#384a42` on light surfaces.

@@ -8,27 +8,18 @@
       title: 'Sheet 01 · Outer Boundary Verification',
       shortMeta: '52.00 Bigha · 42,466 Gaj · 35,507 Sq.m',
       description: 'Confirmed outer survey perimeter with Karodi Road frontage and Chakroad closed wall.',
+      stageLabel: 'SHEET 01 · plans/outer-boundary.html (Read-only verified sheet)',
       status: 'Immutable',
       statusKind: 'locked',
       src: './plans/outer-boundary.html'
     },
     {
-      id: '2d-plots',
-      sheetCode: 'SHEET 02',
-      title: 'Sheet 02 · 2D Plot Subdivision Layout',
+      id: 'design-01-2d',
+      sheetCode: 'DESIGN 01 · 2D',
+      title: 'Design 01 · 2D Colony Map Option',
       shortMeta: '32.95 Bigha Net Plotted (63.37%)',
-      description: 'Upcoming 2D internal road & plot layout engineered inside the locked 52.00 Bigha boundary.',
-      status: 'Next Step',
-      statusKind: 'pending',
-      src: null
-    },
-    {
-      id: '3d-colony',
-      sheetCode: 'SHEET 03',
-      title: 'Sheet 03 · 3D Colony Design Model',
-      shortMeta: 'Interactive 3D Site Visualization',
-      description: 'Upcoming 3D spatial model of the colony aligned to the confirmed outer perimeter and Karodi Road access.',
-      status: 'Planned',
+      description: 'First 2D colony map design inside the locked 52.00 Bigha boundary. Every new map design opens in 2D first; a 3D view is added only if you approve that design.',
+      status: '2D Next',
       statusKind: 'pending',
       src: null
     }
@@ -118,7 +109,7 @@
         iframeEl.setAttribute('src', plan.src);
       }
       stageLockDot.className = 'lock-dot';
-      stageSubbarText.textContent = `${plan.sheetCode} · plans/outer-boundary.html (Read-only verified sheet)`;
+      stageSubbarText.textContent = plan.stageLabel || `${plan.sheetCode} · ${plan.src.replace(/^\.\//, '')} (${plan.status})`;
       openStandaloneLink.setAttribute('href', plan.src);
       openStandaloneLink.hidden = false;
     } else {
